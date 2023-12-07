@@ -144,6 +144,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SECURE_SSL_REDIRECT = False
+
+
 # Set SameSite=None and Secure for Session Cookies
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = None
@@ -155,3 +158,6 @@ CSRF_COOKIE_SAMESITE = None
 # Session expiration settings
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600  # 1 hour in seconds
+
+print(f"CORS_ALLOWED_ORIGINS: {CORS_ALLOWED_ORIGINS}")
+# print(f"CORS_ALLOW_HEADERS: {CORS_ALLOW_HEADERS}")

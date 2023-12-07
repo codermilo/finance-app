@@ -7,6 +7,7 @@ from rest_framework import permissions, status, generics
 from .validations import custom_validation, validate_email, validate_password
 from .models import Transaction
 import logging
+from django.http import JsonResponse
 
 
 logger = logging.getLogger(__name__)

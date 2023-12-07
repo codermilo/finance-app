@@ -32,7 +32,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         account = Account.objects.create(
             current_balance=current_balance, bank_name=bank_name)
         user_obj = UserModel.objects.create_user(
-            email=clean_data['email'], password=clean_data['password'])
+            email=clean_data['email'], password=clean_data['password'], username=clean_data['username'])
         user_obj.username = clean_data['username']
         user_obj.account = account
         user_obj.save()
