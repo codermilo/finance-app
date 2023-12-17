@@ -3,6 +3,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
 
@@ -10,7 +11,8 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
-    
+
+
 class Account(models.Model):
     account_id = models.AutoField(primary_key=True)
     current_balance = models.DecimalField(
