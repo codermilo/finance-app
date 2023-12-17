@@ -1,11 +1,19 @@
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-const useCreateTransaction = () => {
+const useCreateAccount = () => {
   const user = useAuth();
+  const userId = user?.userId;
   const token = user?.token;
+  // console.log("Bank:", bank); // Check the value of bank
+  // console.log("Balance:", balance); // Check the value of balance
 
-  const createTransaction = async (value, recurring, desc, category) => {
+  const createAccount = async (bank, balance) => {
+    if (!userId) {
+      console.error("User or account ID is null");
+      return;
+    }
+
     try {
       const client = axios.create({
         baseURL: "http://127.0.0.1:8000",
@@ -15,12 +23,11 @@ const useCreateTransaction = () => {
       });
 
       const transactionRes = await client.post(
-        "/api/create_transaction",
+        "/api/create_account",
         {
-          value: value,
-          recurring: recurring,
-          description: desc,
-          category_description: category,
+          current_balance: balance,
+          bank_name: bank,
+          user: userId,
         },
         {
           headers: {
@@ -35,7 +42,7 @@ const useCreateTransaction = () => {
     }
   };
 
-  return { createTransaction };
+  return { createAccount };
 };
 
-export default useCreateTransaction;
+export default useCreateAccount;

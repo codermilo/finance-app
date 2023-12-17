@@ -32,14 +32,14 @@ const Form = ({ fields, form }) => {
   const submitRegistration = (e) => {
     e.preventDefault();
     // Handle form submission logic with formData object
-    // console.log(formData);
+    console.log(formData);
 
     switch (form) {
       case "register":
         registerUser(email, username, password);
         break;
       case "login":
-        loginUser(email, password);
+        loginUser(username, password);
         break;
       // case "createTransaction":
       //   createTransaction();
@@ -59,7 +59,7 @@ const Form = ({ fields, form }) => {
             <input
               type={field === "password" ? "password" : "text"}
               placeholder={`Enter ${field}`}
-              value={formData[field]}
+              value={formData[field] || ""}
               onChange={(e) => handleChange(e, field)}
               className="input"
             />

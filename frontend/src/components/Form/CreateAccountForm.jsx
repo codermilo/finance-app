@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import "../../styles/Form.css";
 import { useAuth } from "../../context/AuthContext";
-import useCreateTransaction from "../../hooks/useCreateTransaction";
+import useCreateAccount from "../../hooks/useCreateAccount";
 
-const CreateTransactionForm = ({ fields, form }) => {
+const CreateAccountForm = ({ fields, form }) => {
   const user = useAuth();
 
   // Import useCreateTransaction hook
-  const { createTransaction } = useCreateTransaction();
+  const { createAccount } = useCreateAccount();
 
   // Set initial state for form data
   const initialFieldStates = fields.reduce((acc, field) => {
@@ -19,7 +19,9 @@ const CreateTransactionForm = ({ fields, form }) => {
   const [formData, setFormData] = useState({ ...initialFieldStates });
 
   // Destructure form data fields
-  const { value, recurring, description, category } = formData;
+  // const bank = formData["current balance"];
+  // const balance = formData["bank name"];
+  // console.log(bank);
 
   // Handle form field changes
   const handleChange = (e, fieldName) => {
@@ -30,14 +32,17 @@ const CreateTransactionForm = ({ fields, form }) => {
   };
 
   // Handle form submission
-  const submitTransCreation = (e) => {
+  const submitAccountCreation = (e) => {
     e.preventDefault();
 
     // Switch based on form type
     switch (form) {
-      case "createTransaction":
-        // Call createTransaction function from hook
-        createTransaction(value, recurring, description, category);
+      case "createAccount":
+        // Call createAccount function from hook
+        const bank = formData["bank name"];
+        const balance = formData["current balance"];
+
+        createAccount(bank, balance);
         break;
       default:
         console.log("error, form submit not working");
@@ -47,7 +52,7 @@ const CreateTransactionForm = ({ fields, form }) => {
 
   return (
     <div className="form-container">
-      <form onSubmit={submitTransCreation}>
+      <form onSubmit={submitAccountCreation}>
         {/* Map over form fields */}
         {fields.map((field) => (
           <div key={field} className="form-group">
@@ -70,4 +75,4 @@ const CreateTransactionForm = ({ fields, form }) => {
   );
 };
 
-export default CreateTransactionForm;
+export default CreateAccountForm;

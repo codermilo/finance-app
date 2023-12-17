@@ -27,15 +27,20 @@ const useRegister = () => {
         accountDetails: accountData,
       });
 
+      console.log(registerRes.data);
+
       const loginRes = await client.post("/api/login", {
-        email: email,
+        username: username,
         password: password,
       });
+
+      console.log(loginRes.data);
 
       dispatch({
         type: "login",
         isLoggedIn: true,
-        user: loginRes.data.user,
+        username: loginRes.data.username,
+        token: loginRes.data.token,
       });
     } catch (error) {
       console.error("Error during registration:", error);

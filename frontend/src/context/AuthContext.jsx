@@ -10,7 +10,10 @@ export function AuthProvider({ children }) {
   // Define initial authentication state
   const initialAuth = {
     isLoggedIn: false,
-    user: null,
+    username: null,
+    email: null,
+    token: null,
+    account: null,
     error: null,
   };
 
@@ -22,6 +25,8 @@ export function AuthProvider({ children }) {
     const fetchData = async () => {
       let savedCredentials;
       const savedCredString = Cookies.get("auth");
+      // console.log("Getting auth from cookie. This is what there is");
+      // console.log(savedCredString);
 
       try {
         savedCredentials = savedCredString
@@ -33,41 +38,43 @@ export function AuthProvider({ children }) {
         savedCredentials = initialAuth;
       }
 
-      if (!savedCredentials.auth) {
-        axios.defaults.xsrfCookieName = "csrftoken";
-        axios.defaults.xsrfHeaderName = "X-CSRFToken";
-        axios.defaults.withCredentials = true;
+      // if (!savedCredentials.auth) {
+      //   axios.defaults.xsrfCookieName = "csrftoken";
+      //   axios.defaults.xsrfHeaderName = "X-CSRFToken";
+      //   axios.defaults.withCredentials = true;
 
-        // LATER I NEED TO ENV THE URLS !!!
-        const client = axios.create({
-          baseURL: "http://127.0.0.1:8000",
-        });
+      //   // LATER I NEED TO ENV THE URLS !!!
+      //   const client = axios.create({
+      //     baseURL: "http://127.0.0.1:8000",
+      //   });
 
-        try {
-          client
-            .get("/api/user")
-            .then((res) => {
-              // console.log(res.data.user);
-              dispatch({
-                type: "login",
-                isLoggedIn: true,
-                user: res.data.user,
-              });
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          // Handle error if needed
-          dispatch({
-            type: "setError",
-            error: error,
-          });
-        }
-      } else {
-        dispatch({ type: "initialize", auth: savedCredentials });
-      }
+      //   try {
+      //     client
+      //       .get("/api/user")
+      //       .then((res) => {
+      //         // console.log(res.data.user);
+      //         dispatch({
+      //           type: "login",
+      //           isLoggedIn: true,
+      //           user: res.data.user,
+      //         });
+      //       })
+      //       .catch((error) => {
+      //         console.log(error);
+      //       });
+      //   } catch (error) {
+      //     console.error("Error fetching data:", error);
+      //     // Handle error if needed
+      //     dispatch({
+      //       type: "setError",
+      //       error: error,
+      //     });
+      //   }
+      // } else {
+      //   dispatch({ type: "initialize", auth: savedCredentials });
+      // }
+
+      dispatch({ type: "initialize", auth: savedCredentials });
     };
 
     fetchData();
@@ -78,7 +85,9 @@ export function AuthProvider({ children }) {
     const authString = JSON.stringify(auth);
     Cookies.set("auth", authString);
     const authCookieSize = getCookieSize("auth");
-    console.log(`Size of auth cookie: ${authCookieSize} bytes`);
+    // console.log("saving auth to cookie");
+    // console.log(Cookies.get("auth"));
+    // console.log(`Size of auth cookie: ${authCookieSize} bytes`);
   }, [auth]);
 
   function getCookieSize(cookieName) {
@@ -125,7 +134,10 @@ function authReducer(state, action) {
       return {
         ...state,
         isLoggedIn: true,
-        user: action.user,
+        username: action.username,
+        userId: action.userId,
+        token: action.token,
+        account: action.account,
         error: null,
       };
 
@@ -133,7 +145,11 @@ function authReducer(state, action) {
       return {
         ...state,
         isLoggedIn: false,
-        user: null,
+        username: null,
+        userId: null,
+        email: null,
+        token: null,
+        account: null,
         error: null,
       };
 
@@ -141,8 +157,15 @@ function authReducer(state, action) {
       return {
         ...state,
         isLoggedIn: true,
-        user: action.user,
+        username: action.username,
+        email: action.email,
         error: null,
+      };
+
+    case "update account":
+      return {
+        ...state,
+        account: action.account,
       };
 
     case "setError":

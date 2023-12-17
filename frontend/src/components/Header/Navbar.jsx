@@ -16,18 +16,34 @@ export default function Navbar(props) {
 
   // importing auth status from context
   const authStatus = useAuth();
+  const token = authStatus.token;
 
   // importing dispatch so I can send them to my authcontext
   const dispatch = useAuthDispatch();
 
   const logoutDispatch = (e) => {
     e.preventDefault();
-    client.post("/api/logout", { withCredentials: true }).then(function (res) {
-      console.log("Logging out.");
-      dispatch({
-        type: "logout",
+
+    // Assuming 'token' holds the user's authentication token
+    client
+      .post(
+        "/api/logout",
+        {},
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then(function (res) {
+        console.log("Logging out.");
+        dispatch({
+          type: "logout",
+        });
+      })
+      .catch(function (error) {
+        console.error("Error during logout:", error);
       });
-    });
   };
 
   return (

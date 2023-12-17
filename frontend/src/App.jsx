@@ -3,16 +3,18 @@ import Footer from "./components/Footer/Footer";
 import Form from "./components/Form/Form";
 import "./App.css";
 import { useState } from "react";
-import LoginInstance from "./components/Login/LoginInstance";
+import LoginInstance from "./components/AuthRoute/LoginInstance";
 import { useAuth } from "./context/AuthContext";
 import CreateTransactionForm from "./components/Form/CreateTransactionForm";
+import CreateAccount from "./components/AuthRoute/CreateAccount";
+import TransactionList from "./components/AuthRoute/TransactionList";
 
 export default function App() {
   // let's grab the auth status from context
   const authStatus = useAuth();
   const [formOptions, setFormOptions] = useState("register");
 
-  console.log(authStatus.user?.account.account_id);
+  // console.log(authStatus);
 
   // function sent to buttons on navbar to decide what options are shown in the form
   const loginReg = (arg) => {
@@ -25,18 +27,26 @@ export default function App() {
       <div className="App">
         <Navbar loginRegFunc={loginReg} />
         <div className="main__container">
-          <h1>Logged In!</h1>
-          <LoginInstance />
-          <CreateTransactionForm
-            fields={[
-              "value",
-              "recurring",
-              "description",
-              "category",
-              "account",
-            ]}
-            form="createTransaction"
-          />
+          <div className="panel">
+            <div className="data_portal__container">
+              <h1>Logged In!</h1>
+              <LoginInstance />
+            </div>
+            <CreateAccount />
+          </div>
+          <div className="panel">
+            <div className="create_transaction__container">
+              <h1>CREATE NEW TRANSACTION</h1>
+              <CreateTransactionForm
+                fields={["value", "recurring", "description", "category"]}
+                form="createTransaction"
+              />
+            </div>
+            <div className="transactions">
+              <h1>TRANSACTIONS</h1>
+              <TransactionList />
+            </div>
+          </div>
         </div>
         <Footer />
       </div>
@@ -53,7 +63,7 @@ export default function App() {
         </div>
       ) : (
         <div className="main__container">
-          <Form fields={["email", "password"]} form="login" />
+          <Form fields={["username", "password"]} form="login" />
         </div>
       )}
       <Footer />

@@ -50,5 +50,25 @@ span.input-group-addon {
   justify-content: center;
   align-items: center;
   flex: 1;
-  margin: 0 4rem;
+  margin: 4rem;
+  gap: 4rem;
+}
+
+.panel {
+  display: flex;
+  border: 2px solid red;
+  width: 100%;
+  padding: 2rem;
+  gap: 4rem;
+}
+
+.data_portal__container {
+  width: 50%;
+  border: 2px solid green;
+  text-wrap: wrap;
+}
+
+.create__account {
+  width: 50%;
+  border: 2px solid blue;
 }
