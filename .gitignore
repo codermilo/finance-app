@@ -13,7 +13,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /__pycache__/
 /__pycache__
 
-/*.pyc
+*.pyc
 
 # Local ENV
 financeappgit_env/
