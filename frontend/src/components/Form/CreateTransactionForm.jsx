@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import "../../styles/Form.css";
-import { useAuth } from "../../context/AuthContext";
 import useCreateTransaction from "../../hooks/useCreateTransaction";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const CreateTransactionForm = ({ fields, form }) => {
-  const user = useAuth();
-
   // Import useCreateTransaction hook
   const { createTransaction } = useCreateTransaction();
 
@@ -18,10 +17,15 @@ const CreateTransactionForm = ({ fields, form }) => {
   // State to hold form data
   const [formData, setFormData] = useState({ ...initialFieldStates });
 
-  // Destructure form data fields
-  const { value, recurring, description, category } = formData;
+  // Handle date changes for date pickers
+  const handleDateChange = (date, fieldName) => {
+    setFormData({
+      ...formData,
+      [fieldName]: date,
+    });
+  };
 
-  // Handle form field changes
+  // Handle changes in non-date input fields
   const handleChange = (e, fieldName) => {
     setFormData({
       ...formData,
@@ -33,11 +37,35 @@ const CreateTransactionForm = ({ fields, form }) => {
   const submitTransCreation = (e) => {
     e.preventDefault();
 
+    const formattedFormData = { ...formData };
+
+    console.log(formData);
+    console.log(formattedFormData);
+
+    // Convert date strings to Date objects
+    Object.keys(formattedFormData).forEach((field) => {
+      if (
+        field.includes("date") &&
+        typeof formattedFormData[field] === "string"
+      ) {
+        formattedFormData[field] = new Date(formattedFormData[field]);
+      }
+    });
+
+    // Format Date objects to YYYY-MM-DD format
+    Object.keys(formattedFormData).forEach((field) => {
+      if (formattedFormData[field] instanceof Date) {
+        formattedFormData[field] = formattedFormData[field]
+          .toISOString()
+          .split("T")[0];
+      }
+    });
+
     // Switch based on form type
     switch (form) {
       case "createTransaction":
         // Call createTransaction function from hook
-        createTransaction(value, recurring, description, category);
+        createTransaction(formattedFormData); // Pass the entire formData object
         break;
       default:
         console.log("error, form submit not working");
@@ -52,13 +80,24 @@ const CreateTransactionForm = ({ fields, form }) => {
         {fields.map((field) => (
           <div key={field} className="form-group">
             <label className="label">{field}</label>
-            <input
-              type={field === "password" ? "password" : "text"}
-              placeholder={`Enter ${field}`}
-              value={formData[field]}
-              onChange={(e) => handleChange(e, field)}
-              className="input"
-            />
+            {/* Check if the field is a date field */}
+            {field.includes("date") ? (
+              <DatePicker
+                selected={formData[field]}
+                onChange={(date) => handleDateChange(date, field)}
+                dateFormat="MM-dd-yy"
+                placeholderText="MM-DD-YY"
+                className="input"
+              />
+            ) : (
+              <input
+                type={field === "password" ? "password" : "text"}
+                placeholder={`Enter ${field}`}
+                value={formData[field]}
+                onChange={(e) => handleChange(e, field)}
+                className="input"
+              />
+            )}
           </div>
         ))}
         {/* Submit button */}

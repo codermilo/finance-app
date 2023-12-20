@@ -5,7 +5,7 @@ const useCreateTransaction = () => {
   const user = useAuth();
   const token = user?.token;
 
-  const createTransaction = async (value, recurring, desc, category) => {
+  const createTransaction = async (transactionData) => {
     try {
       const client = axios.create({
         baseURL: "http://127.0.0.1:8000",
@@ -16,12 +16,7 @@ const useCreateTransaction = () => {
 
       const transactionRes = await client.post(
         "/api/create_transaction",
-        {
-          value: value,
-          recurring: recurring,
-          description: desc,
-          category_description: category,
-        },
+        transactionData,
         {
           headers: {
             Authorization: `Token ${token}`,

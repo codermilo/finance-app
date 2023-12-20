@@ -8,6 +8,8 @@ import { useAuth } from "./context/AuthContext";
 import CreateTransactionForm from "./components/Form/CreateTransactionForm";
 import CreateAccount from "./components/AuthRoute/CreateAccount";
 import TransactionList from "./components/AuthRoute/TransactionList";
+import DatePicker from "./components/DatePicker/DatePicker";
+import DatePickerComponent from "./components/DatePicker/DatePicker";
 
 export default function App() {
   // let's grab the auth status from context
@@ -38,7 +40,17 @@ export default function App() {
             <div className="create_transaction__container">
               <h1>CREATE NEW TRANSACTION</h1>
               <CreateTransactionForm
-                fields={["value", "recurring", "description", "category"]}
+                fields={[
+                  "value",
+                  "recurring",
+                  "recurring_period",
+                  "first_payment_date",
+                  "final_payment_date",
+                  "previous_payment_date",
+                  "recipient",
+                  "description",
+                  "category",
+                ]}
                 form="createTransaction"
               />
             </div>

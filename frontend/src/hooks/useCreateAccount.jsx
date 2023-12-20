@@ -3,13 +3,13 @@ import { useAuth } from "../context/AuthContext";
 
 const useCreateAccount = () => {
   const user = useAuth();
-  const userId = user?.userId;
+  const account = user?.account;
   const token = user?.token;
   // console.log("Bank:", bank); // Check the value of bank
   // console.log("Balance:", balance); // Check the value of balance
 
   const createAccount = async (bank, balance) => {
-    if (!userId) {
+    if (account) {
       console.error("User or account ID is null");
       return;
     }
@@ -27,7 +27,7 @@ const useCreateAccount = () => {
         {
           current_balance: balance,
           bank_name: bank,
-          user: userId,
+          // user: userId,
         },
         {
           headers: {

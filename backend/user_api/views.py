@@ -221,7 +221,9 @@ def create_transaction(request):
         recipient_name = request.data.get('recipient')
         description = request.data.get('description')
         category_description = request.data.get(
-            'category_description')  # New category description
+            'category')  # New category description
+        print(category_description)
+        print(request.data.get('value'))
 
         try:
             # Retrieve the account linked to the authenticated user
