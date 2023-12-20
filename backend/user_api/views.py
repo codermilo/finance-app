@@ -3,7 +3,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import UserSerializer, AccountSerializer, TransactionSerializer
+from .serializers import UserSerializer, AccountSerializer, TransactionSerializer, CategoryChoicesSerializer, RecipientSerializer, TransactionMetaDataSerializer
 
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
@@ -11,8 +11,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 
-from .models import CustomUser, Account, Transaction, Category
+from .models import CustomUser, Account, Transaction, Category, TransactionMetaData, Recipient
 
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -147,7 +148,7 @@ def get_user(request):
 # creating linked account
 
 
-@api_view(['POST'])
+@api_view(['POST', 'PUT'])
 @permission_classes([IsAuthenticated])
 def create_account(request):
     if request.method == 'POST':
@@ -157,7 +158,7 @@ def create_account(request):
         # For example, 'bank_name', 'initial_balance', etc.
         bank_name = request.data.get('bank_name')
         initial_balance = request.data.get(
-            'initial_balance', 0)  # Default balance
+            'current_balance', 0)  # Default balance
 
         try:
             # Create the account linked to the authenticated user
@@ -181,8 +182,28 @@ def create_account(request):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    elif request.method == 'PUT':
+        user = request.user  # Get the authenticated user
+        # Handle account update logic
+        try:
+            account = Account.objects.get(user=user)  # Get the user's account
+            serializer = AccountSerializer(
+                account, data=request.data, partial=True)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Account updated successfully', 'account': serializer.data}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Account.DoesNotExist:
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # creating transaction
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -193,6 +214,11 @@ def create_transaction(request):
         # Extract data from the request
         value = request.data.get('value')
         recurring = request.data.get('recurring', False)
+        recurring_period = request.data.get('recurring_period')
+        first_payment_date = request.data.get('first_payment_date')
+        final_payment_date = request.data.get('final_payment_date')
+        previous_payment_date = request.data.get('previous_payment_date')
+        recipient_name = request.data.get('recipient')
         description = request.data.get('description')
         category_description = request.data.get(
             'category_description')  # New category description
@@ -204,6 +230,10 @@ def create_transaction(request):
             return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
+            # Check if the category description is within predefined choices
+            if category_description not in [choice[0] for choice in Category.CATEGORY_CHOICES]:
+                return Response({'error': 'Invalid category description'}, status=status.HTTP_400_BAD_REQUEST)
+
             # Check if the category already exists
             category = Category.objects.get(description=category_description)
         except Category.DoesNotExist:
@@ -212,20 +242,224 @@ def create_transaction(request):
                 description=category_description)
 
         try:
+            # Check if the recipient already exists
+            recipient = Recipient.objects.get(name=recipient_name)
+        except Recipient.DoesNotExist:
+            # If the recipient doesn't exist, create a new one
+            recipient = Recipient.objects.create(name=recipient_name)
+
+        try:
             # Create the transaction linked to the account and category
-            transaction = Transaction.objects.create(
+
+            transaction_meta_data = TransactionMetaData.objects.create(
                 value=value,
                 recurring=recurring,
+                recurring_period=recurring_period,
+                first_payment_date=first_payment_date,
+                final_payment_date=final_payment_date,
+                previous_payment_date=previous_payment_date,
+                recipient=recipient,
                 description=description,
                 category=category,
-                account=account
             )
+
+            transaction = Transaction.objects.create(
+                value=value,
+                account=account,
+                transaction_meta_data_id=transaction_meta_data,
+            )
+
             # Serialize the transaction data before returning in the response
             # Assuming TransactionSerializer exists
             serializer = TransactionSerializer(transaction)
             serialized_transaction = serializer.data
 
             return Response(serialized_transaction, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_choices(request):
+    if request.method == 'GET':
+
+        try:
+            # Fetch category choices from the model
+            category_choices = [choice[0]
+                                for choice in Category.CATEGORY_CHOICES]
+
+            # Fetch recipient names and their IDs from the Recipient model
+            recipients = Recipient.objects.all()
+            serializer = RecipientSerializer(recipients, many=True)
+
+            data = {
+                'category_choices': category_choices,
+                'recipients': serializer.data  # Include recipient IDs and names in the response
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# Updating Account
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_account(request):
+    if request.method == 'PUT':
+        user = request.user  # Get the user associated with the token
+    try:
+        # Retrieve the account linked to the authenticated user
+        account = Account.objects.get(user=user)
+
+        # Retrieve values sent in request payload and update account with them
+        bank_name = request.data.get('bank_name')
+        current_balance = request.data.get(
+            'current_balance', 0)
+
+        account.bank_name = bank_name
+        account.current_balance = current_balance
+
+        account.save()
+
+        # Serialize account data to return to frontend
+
+        account_serializer = AccountSerializer(account)
+        serialized_account = account_serializer.data
+
+        response_data = {
+            'message': 'Account updated successfully',
+            'account': serialized_account
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# Delete account view
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    if request.method == 'DELETE':
+        user = request.user  # Get the authenticated user
+
+        try:
+            # Retrieve the account linked to the authenticated user
+            account = Account.objects.get(user=user)
+
+            # Delete the account
+            account.delete()
+
+            return Response({'message': 'Account deleted successfully'}, status=status.HTTP_200_OK)
+
+        except Account.DoesNotExist:
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_transaction(request):
+    if request.method == 'PUT':
+
+        try:
+            transaction_id = request.data.get('transaction_id')
+            transaction = Transaction.objects.get(pk=transaction_id)
+
+            # Update value in transaction
+            value = request.data.get('value')
+            if value is not None:
+                transaction.value = value
+
+            # Fields to be updated
+            fields_to_update = ['value', 'recurring', 'recurring_period', 'first_payment_date',
+                                'final_payment_date', 'previous_payment_date', 'description']
+
+            transaction_meta_data_id = request.data.get(
+                'transaction_meta_data_id')
+
+            for field in fields_to_update:
+                field_value = transaction_meta_data_id.get(field)
+                if field_value is not None:
+                    setattr(transaction.transaction_meta_data_id,
+                            field, field_value)
+
+            # need special function to update recipient and category
+            recipient_name = transaction_meta_data_id.get('recipient')
+            category_description = transaction_meta_data_id.get('category')
+
+            try:
+                # print(transaction_meta_data_id.get('category'))
+                # print(category_description)
+                print(recipient_name)
+                # Check if the category description is within predefined choices
+                if category_description not in [choice[0] for choice in Category.CATEGORY_CHOICES]:
+                    return Response({'error': 'Invalid category description'}, status=status.HTTP_400_BAD_REQUEST)
+
+                 # Check if the category already exists
+                category, created = Category.objects.get_or_create(
+                    description=category_description)
+            except Category.DoesNotExist:
+                # If the category doesn't exist, create a new one
+                return Response({'error': 'No category provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                print(recipient_name)
+                # Check if the recipient already exists
+                recipient, created = Recipient.objects.get_or_create(
+                    name=recipient_name)
+            except Recipient.DoesNotExist:
+                # If the recipient doesn't exist, create a new one
+                recipient = Recipient.objects.create(name=recipient_name)
+
+            # Update transaction metadata with recipient and category
+            if transaction.transaction_meta_data_id:
+                transaction.transaction_meta_data_id.recipient = recipient
+                transaction.transaction_meta_data_id.category = category
+                transaction.transaction_meta_data_id.save()
+
+            # Serialize the updated TransactionMetaData instance
+            serializer = TransactionMetaDataSerializer(
+                transaction.transaction_meta_data_id)
+            serialized_metadata = serializer.data
+
+            # Serialize the updated Transaction instance
+            serializer = TransactionSerializer(transaction)
+            serialized_transaction = serializer.data
+
+            return Response({'message': 'Transaction updated successfully', 'transaction_meta_data': serialized_metadata, 'transaction': serialized_transaction}, status=status.HTTP_200_OK)
+        except Transaction.DoesNotExist:
+            return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_transaction(request):
+    if request.method == 'DELETE':
+
+        transaction_id = request.data.get('transaction_id')
+
+        try:
+            # Retrieve the account linked to the authenticated user
+            transaction = Transaction.objects.get(
+                transaction_id=transaction_id)
+
+            # Delete the account
+            transaction.delete()
+
+            return Response({'message': 'Transaction deleted successfully'}, status=status.HTTP_200_OK)
+
+        except transaction.DoesNotExist:
+            return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
