@@ -17,7 +17,21 @@ const CreateTransactionForm = ({ fields, form }) => {
 
   // Set initial state for form data
   const initialFieldStates = fields.reduce((acc, field) => {
-    acc[field] = "";
+    switch (field) {
+      case "recurring":
+        acc[field] = false;
+        break;
+      case "first_payment_date":
+        acc[field] = new Date();
+        break;
+      case "category":
+        acc[field] = "Utilities";
+        break;
+      default:
+        console.log(field);
+        acc[field] = "";
+    }
+
     return acc;
   }, {});
 
@@ -63,9 +77,12 @@ const CreateTransactionForm = ({ fields, form }) => {
     Object.keys(formattedFormData).forEach((field) => {
       if (
         field.includes("date") &&
-        typeof formattedFormData[field] === "string"
+        typeof formattedFormData[field] === "string" &&
+        formattedFormData[field].trim() !== ""
       ) {
         formattedFormData[field] = new Date(formattedFormData[field]);
+      } else if (formattedFormData[field] === "") {
+        formattedFormData[field] = null; // Set empty date values to null
       }
     });
 
@@ -99,7 +116,7 @@ const CreateTransactionForm = ({ fields, form }) => {
       formData.recurring ||
       ![
         "recurring_period",
-        "first_payment_date",
+        // "first_payment_date",
         "final_payment_date",
         "previous_payment_date",
       ].includes(fieldName)

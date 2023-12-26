@@ -59,8 +59,17 @@ const FormField = ({
           ))}
         </select>
       );
-    case "final_payment_date":
     case "first_payment_date":
+      return (
+        <DatePicker
+          selected={formData[field] || new Date()}
+          onChange={(date) => handleDateChange(date, field)}
+          dateFormat="MM-dd-yy"
+          placeholderText="MM-DD-YY"
+          className="input"
+        />
+      );
+    case "final_payment_date":
     case "previous_payment_date":
       return (
         <DatePicker

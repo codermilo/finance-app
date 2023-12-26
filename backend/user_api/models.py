@@ -65,11 +65,13 @@ class TransactionMetaData(models.Model):
     value = models.DecimalField(max_digits=10, decimal_places=2)
     recurring = models.BooleanField(default=False)
     recurring_period = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(100)]
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        null=True,
+        blank=True  # Added blank=True for Django admin
     )
     first_payment_date = models.DateField()
-    final_payment_date = models.DateField()
-    previous_payment_date = models.DateField()
+    final_payment_date = models.DateField(null=True, blank=True)
+    previous_payment_date = models.DateField(null=True, blank=True)
     recipient = models.ForeignKey(
         Recipient, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100)
