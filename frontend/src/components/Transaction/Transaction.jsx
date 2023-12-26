@@ -12,7 +12,7 @@ export default function Transaction(props) {
   const transaction = props.transaction;
   const meta = transaction.transaction_meta_data_id;
   const id = transaction.transaction_id;
-  console.log(transaction);
+  // console.log(transaction);
 
   // Update transaction function
   const updateTransaction = async () => {

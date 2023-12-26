@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function CreateAccount() {
   const user = useAuth();
   const hasAccount = user.account;
-  console.log(hasAccount);
+  // console.log(hasAccount);
 
   return (
     <div className="create__account">

@@ -36,7 +36,7 @@ const useCreateAccount = () => {
         }
       );
 
-      console.log(transactionRes);
+      // console.log(transactionRes);
     } catch (error) {
       console.error("Error during transaction deletion:", error);
       console.error("Response data:", error.response.data);

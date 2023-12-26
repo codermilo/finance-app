@@ -6,9 +6,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import getChoices from "../../hooks/getChoices";
 import FormField from "./FormField";
 
-const CreateTransactionForm = ({ fields, form }) => {
+const CreateTransactionForm = ({ fields, form, pay }) => {
   // Import useCreateTransaction hook
   const { createTransaction } = useCreateTransaction();
+
+  console.log(pay);
 
   // Import getChoices hook
   const { data, loading, error } = getChoices();
@@ -28,7 +30,7 @@ const CreateTransactionForm = ({ fields, form }) => {
         acc[field] = "Utilities";
         break;
       default:
-        console.log(field);
+        // console.log(field);
         acc[field] = "";
     }
 
@@ -37,7 +39,7 @@ const CreateTransactionForm = ({ fields, form }) => {
 
   // State to hold form data
   const [formData, setFormData] = useState({ ...initialFieldStates });
-  console.log(formData);
+  // console.log(formData);
 
   // Handle date changes for date pickers
   const handleDateChange = (date, fieldName) => {
