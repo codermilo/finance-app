@@ -222,8 +222,8 @@ def create_transaction(request):
         description = request.data.get('description')
         category_description = request.data.get(
             'category')  # New category description
-        print(category_description)
-        print(request.data.get('value'))
+        # print(category_description)
+        # print(request.data.get('value'))
 
         try:
             # Retrieve the account linked to the authenticated user
@@ -446,9 +446,12 @@ def update_transaction(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_transaction(request):
+    print(request)
     if request.method == 'DELETE':
 
         transaction_id = request.data.get('transaction_id')
+        print(request.data)
+        print(transaction_id)
 
         try:
             # Retrieve the account linked to the authenticated user

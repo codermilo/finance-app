@@ -1,11 +1,11 @@
 import React from "react";
-import "../../App.css";
-import { useAuth } from "../../context/AuthContext";
+import "../Transaction/Transaction.css";
 import useFetch from "../../hooks/useFetch";
+import Transaction from "../Transaction/Transaction";
 
 export default function TransactionList() {
   const { data, loading, error } = useFetch();
-  //   console.log(data);
+  // console.log(data);
   const transactionsArray = data?.transactions;
   if (loading) {
     return <p>Loading...</p>;
@@ -15,20 +15,11 @@ export default function TransactionList() {
   }
   if (Array.isArray(transactionsArray) && transactionsArray.length > 0) {
     return (
-      <div>
-        <h2>Transactions</h2>
-        <ul>
-          {transactionsArray.map((transaction, index) => (
-            <li key={index}>
-              <p>Transaction ID: {transaction.transaction_id}</p>
-              <p>Value: {transaction.value}</p>
-              <p>Recurring: {transaction.recurring ? "Yes" : "No"}</p>
-              <p>Description: {transaction.description}</p>
-              <p>Category: {transaction.category}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ul>
+        {transactionsArray.map((transaction, index) => (
+          <Transaction key={index} transaction={transaction} />
+        ))}
+      </ul>
     );
   } else {
     return <p>No transactions available</p>;

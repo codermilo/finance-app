@@ -4,7 +4,6 @@ import useCreateTransaction from "../../hooks/useCreateTransaction";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import getChoices from "../../hooks/getChoices";
-import FormField from "./FormField";
 
 const CreateTransactionForm = ({ fields, form }) => {
   // Import useCreateTransaction hook
@@ -90,42 +89,75 @@ const CreateTransactionForm = ({ fields, form }) => {
     }
   };
 
-  // Function to determine if a field should be shown based on 'recurring' value
-  const shouldShowField = (fieldName) => {
-    if (fieldName === "recurring") {
-      return true; // Always show 'recurring' field
-    }
-    return (
-      formData.recurring ||
-      ![
-        "recurring_period",
-        "first_payment_date",
-        "final_payment_date",
-        "previous_payment_date",
-      ].includes(fieldName)
-    );
-  };
-
   return (
     <div className="form-container">
       <form onSubmit={submitTransCreation}>
         {/* Map over form fields */}
-        {fields.map(
-          (field) =>
-            shouldShowField(field) && (
-              <div key={field} className="form-group">
-                <label className="label">{field}</label>
-                <FormField
-                  field={field}
-                  formData={formData}
-                  handleChange={handleChange}
-                  handleDateChange={handleDateChange}
-                  handleChangeCheckbox={handleChangeCheckbox}
-                  data={data}
+        {fields.map((field) => (
+          <div key={field} className="form-group">
+            <label className="label">{field}</label>
+            {/* Check if the field is a date field */}
+            {field.includes("date") ? (
+              <DatePicker
+                selected={formData[field]}
+                onChange={(date) => handleDateChange(date, field)}
+                dateFormat="MM-dd-yy"
+                placeholderText="MM-DD-YY"
+                className="input"
+              />
+            ) : field === "recurring" ? (
+              <input
+                type="checkbox"
+                checked={formData[field]}
+                onChange={(e) => handleChangeCheckbox(e, field)} // Updated event handler
+                className="checkbox"
+              />
+            ) : field === "recipient" ? (
+              <>
+                <select
+                  value={formData[field]}
+                  onChange={(e) => handleChange(e, field)}
+                  className="select"
+                >
+                  <option value="">Select recipient</option>
+                  {data?.recipients.map((recipient) => (
+                    <option key={recipient.id} value={recipient.name}>
+                      {recipient.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Or enter recipient"
+                  value={formData[field]}
+                  onChange={(e) => handleChange(e, field)}
+                  className="input"
                 />
-              </div>
-            )
-        )}
+              </>
+            ) : field === "category" ? (
+              <select
+                value={formData[field]}
+                onChange={(e) => handleChange(e, field)}
+                className="select"
+              >
+                {/* <option value="">Select category</option> */}
+                {data?.category_choices?.map((category) => (
+                  <option key={category.id} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={field === "password" ? "password" : "text"}
+                placeholder={`Enter ${field}`}
+                value={formData[field]}
+                onChange={(e) => handleChange(e, field)}
+                className="input"
+              />
+            )}
+          </div>
+        ))}
 
         {/* Submit button */}
         <button type="submit" className="button">
