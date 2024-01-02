@@ -15,13 +15,16 @@ export default function Transaction(props) {
   const meta = transaction.transaction_meta_data_id;
   const id = transaction.transaction_id;
   const pay = meta.transaction_type;
-  // console.log(transaction);
+  console.log(transaction);
 
   // State to decide if update transaction form is shown
   const [updateForm, setUpdateForm] = useState(false);
 
   // Importing updateTransaction function
   const { updateTransaction } = useUpdateTransaction();
+
+  // Importing deleteTransaction function
+  const { deleteTransaction } = props;
 
   // Calling update transaction hook which creates new transaction and deletes old one
   // Needs to take two arguments? Old transaction and new one
@@ -44,28 +47,28 @@ export default function Transaction(props) {
   ];
 
   // Delete transaction function
-  const deleteTransaction = async (id) => {
-    const client = axios.create({
-      baseURL: "http://127.0.0.1:8000",
-      withCredentials: true, // Automatically sends cookies with requests
-      xsrfCookieName: "csrftoken", // Name of the CSRF token cookie set by Django
-      xsrfHeaderName: "X-CSRFToken", // Header name to send the CSRF token
-      headers: {
-        "Content-Type": "application/json", // Set Content-Type explicitly
-        Authorization: `Token ${token}`,
-      },
-    });
+  // const deleteTransaction = async (id) => {
+  //   const client = axios.create({
+  //     baseURL: "http://127.0.0.1:8000",
+  //     withCredentials: true, // Automatically sends cookies with requests
+  //     xsrfCookieName: "csrftoken", // Name of the CSRF token cookie set by Django
+  //     xsrfHeaderName: "X-CSRFToken", // Header name to send the CSRF token
+  //     headers: {
+  //       "Content-Type": "application/json", // Set Content-Type explicitly
+  //       Authorization: `Token ${token}`,
+  //     },
+  //   });
 
-    try {
-      const transactionRes = await client.delete(`/api/delete_transaction`, {
-        data: { transaction_id: id }, // Data goes here
-      });
-      console.log(transactionRes);
-    } catch (error) {
-      console.error("Error during transaction deletion:", error);
-      console.error("Response data:", error.response.data);
-    }
-  };
+  //   try {
+  //     const transactionRes = await client.delete(`/api/delete_transaction`, {
+  //       data: { transaction_id: id }, // Data goes here
+  //     });
+  //     console.log(transactionRes);
+  //   } catch (error) {
+  //     console.error("Error during transaction deletion:", error);
+  //     console.error("Response data:", error.response.data);
+  //   }
+  // };
 
   return (
     <div className="transaction__collection">
@@ -92,6 +95,7 @@ export default function Transaction(props) {
               form="createTransaction"
               pay={pay}
               updateData={transaction}
+              setUpdateForm={setUpdateForm}
             />
           </div>
           <div className="transaction__buttons">

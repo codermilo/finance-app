@@ -7,10 +7,17 @@ import getChoices from "../../hooks/getChoices";
 import FormField from "../Form/FormField";
 import useUpdateTransaction from "../../hooks/useUpdateTransaction";
 
-const UpdateTransactionForm = ({ fields, form, pay, updateData }) => {
+const UpdateTransactionForm = ({
+  fields,
+  form,
+  pay,
+  updateData,
+  setUpdateForm,
+}) => {
   // Import useUpdateTransaction hook
-
   const { updateTransaction } = useUpdateTransaction();
+
+  // const { setUpdateForm } = props;
 
   // Need to get the old transaction data
   const oldTransactionId = updateData.transaction_id;
@@ -121,6 +128,7 @@ const UpdateTransactionForm = ({ fields, form, pay, updateData }) => {
         console.log(formattedFormData);
         // Call updateTransaction function from hook
         updateTransaction(formattedFormData, pay, oldTransactionId); // Pass the entire formData object
+        setUpdateForm(false);
         break;
       default:
         console.log("error, form submit not working");
