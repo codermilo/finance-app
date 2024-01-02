@@ -17,8 +17,24 @@ export default function App() {
   const authStatus = useAuth();
   // decide on whether to show register or login form if not authorised
   const [formOptions, setFormOptions] = useState("register");
+  // Store form fields in an array
+  const formFields = [
+    "value",
+    "recurring",
+    "recurring_period",
+    "first_payment_date",
+    "final_payment_date",
+    "previous_payment_date",
+    "recipient",
+    "description",
+    "category",
+  ];
   // decide on whether to show add expense or income form
-  const [transactionOptions, setTransactionOptions] = useState(true);
+  const [transactionOptions, setTransactionOptions] = useState(null);
+
+  // State to hold form data for updating a transaction?
+  const [updateData, setUpdateData] = useState(null);
+  console.log(updateData);
 
   // write function to toggle transactionOptions to send to transaction button component
   const transactionChange = (arg) => {
@@ -30,6 +46,12 @@ export default function App() {
     setFormOptions(arg);
   };
 
+  // function to set update transaction data to pass to transaction form
+  const updateTransaction = (data) => {
+    setUpdateData(data);
+    console.log(updateData);
+  };
+
   // If logged in then present this code
   if (authStatus.isLoggedIn) {
     return (
@@ -38,59 +60,42 @@ export default function App() {
         <div className="main__container">
           <div className="panel">
             {/* Buttons to add expenses. Looks the same logged in or not */}
-            {/* <div className="data_portal__container">
-              <h1>Logged In!</h1>
-              <LoginInstance />
-            </div> */}
             <TransactionButtonComponent handleClick={transactionChange} />
             {/* Either shows component to create account or shows account detail */}
             <CreateAccount />
           </div>
           <div className="panel">
-            {transactionOptions ? (
+            {transactionOptions === "expense" ? (
               <div className="create_transaction__container">
+                <button onClick={() => transactionChange(null)}>Close</button>
                 <h1>ADD EXPENSE</h1>
                 <CreateTransactionForm
-                  fields={[
-                    "value",
-                    "recurring",
-                    "recurring_period",
-                    "first_payment_date",
-                    "final_payment_date",
-                    "previous_payment_date",
-                    "recipient",
-                    "description",
-                    "category",
-                  ]}
+                  fields={formFields}
                   form="createTransaction"
                   pay="expense"
+                  updateData={updateData}
+                />
+              </div>
+            ) : transactionOptions === "income" ? (
+              <div className="create_transaction__container">
+                <button onClick={() => transactionChange(null)}>Close</button>
+                <h1>ADD INCOME</h1>
+                <CreateTransactionForm
+                  fields={formFields}
+                  form="createTransaction"
+                  pay="income"
+                  updateData={updateData}
                 />
               </div>
             ) : (
-              <div className="create_transaction__container">
-                <h1>ADD INCOME</h1>
-                <CreateTransactionForm
-                  fields={[
-                    "value",
-                    "recurring",
-                    "recurring_period",
-                    "first_payment_date",
-                    "final_payment_date",
-                    "previous_payment_date",
-                    "recipient",
-                    "description",
-                    "category",
-                  ]}
-                  form="createTransaction"
-                  pay="income"
+              <div className="transactions">
+                <h1>TRANSACTIONS</h1>
+                <TransactionList
+                  updateFunc={updateTransaction}
+                  setFormFunc={transactionChange}
                 />
               </div>
             )}
-
-            <div className="transactions">
-              <h1>TRANSACTIONS</h1>
-              <TransactionList />
-            </div>
           </div>
         </div>
         <Footer />

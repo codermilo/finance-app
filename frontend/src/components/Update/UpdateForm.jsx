@@ -1,21 +1,23 @@
 import React, { useState } from "react";
 import "../../styles/Form.css";
-import useCreateTransaction from "../../hooks/useCreateTransaction";
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import getChoices from "../../hooks/getChoices";
-import FormField from "./FormField";
+import FormField from "../Form/FormField";
+import useUpdateTransaction from "../../hooks/useUpdateTransaction";
 
-const CreateTransactionForm = ({ fields, form, pay, updateData }) => {
-  // Import useCreateTransaction hook
-  const { createTransaction } = useCreateTransaction();
+const UpdateTransactionForm = ({ fields, form, pay, updateData }) => {
+  // Import useUpdateTransaction hook
 
-  // console.log(updateData);
+  const { updateTransaction } = useUpdateTransaction();
+
+  // Need to get the old transaction data
+  const oldTransactionId = updateData.transaction_id;
+  //   console.log(updateData);
 
   // Import getChoices hook
   const { data, loading, error } = getChoices();
-  // console.log(data.category_choices[0]);
-  // console.log(data.recipients[0].name);
 
   // Set initial state for form data
   let initialFieldStates = fields.reduce((acc, field) => {
@@ -43,9 +45,9 @@ const CreateTransactionForm = ({ fields, form, pay, updateData }) => {
     initialFieldStates = {
       category: data.category,
       description: data.description,
-      first_payment_date: data.first_payment_date,
-      final_payment_date: data.final_payment_date,
-      previous_payment_date: data.previous_payment_date,
+      first_payment_date: new Date(data.first_payment_date),
+      final_payment_date: new Date(data.final_payment_date),
+      previous_payment_date: new Date(data.previous_payment_date),
       recipient: data.recipient,
       recurring: data.recurring,
       recurring_period: data.recurring_period,
@@ -116,8 +118,9 @@ const CreateTransactionForm = ({ fields, form, pay, updateData }) => {
     // Switch based on form type
     switch (form) {
       case "createTransaction":
-        // Call createTransaction function from hook
-        createTransaction(formattedFormData, pay, updateData); // Pass the entire formData object
+        console.log(formattedFormData);
+        // Call updateTransaction function from hook
+        updateTransaction(formattedFormData, pay, oldTransactionId); // Pass the entire formData object
         break;
       default:
         console.log("error, form submit not working");
@@ -171,4 +174,4 @@ const CreateTransactionForm = ({ fields, form, pay, updateData }) => {
   );
 };
 
-export default CreateTransactionForm;
+export default UpdateTransactionForm;

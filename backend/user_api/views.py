@@ -28,6 +28,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from decimal import Decimal
 
 
 # Endpoint for user logout, requires authentication
@@ -159,12 +160,13 @@ def create_account(request):
         bank_name = request.data.get('bank_name')
         initial_balance = request.data.get(
             'current_balance', 0)  # Default balance
+        balance = Decimal(initial_balance)
 
         try:
             # Create the account linked to the authenticated user
             account = Account.objects.create(
                 bank_name=bank_name,
-                current_balance=initial_balance,
+                current_balance=balance,
                 user=user  # Link the account to the user
             )
 
@@ -212,7 +214,8 @@ def create_transaction(request):
         user = request.user  # Get the authenticated user
 
         # Extract data from the request
-        value = request.data.get('value')
+        incoming_value = request.data.get('value')
+        value = Decimal(incoming_value)
         recurring = request.data.get('recurring', False)
         recurring_period = request.data.get('recurring_period')
         first_payment_date = request.data.get('first_payment_date')
@@ -222,6 +225,7 @@ def create_transaction(request):
         description = request.data.get('description')
         category_description = request.data.get(
             'category')  # New category description
+        transaction_type = request.data.get('transaction_type')
         # print(category_description)
         # print(request.data.get('value'))
 
@@ -263,10 +267,11 @@ def create_transaction(request):
                 recipient=recipient,
                 description=description,
                 category=category,
+                transaction_type=transaction_type
             )
 
             transaction = Transaction.objects.create(
-                value=value,
+                # value=value,
                 account=account,
                 transaction_meta_data_id=transaction_meta_data,
             )
@@ -275,6 +280,16 @@ def create_transaction(request):
             # Assuming TransactionSerializer exists
             serializer = TransactionSerializer(transaction)
             serialized_transaction = serializer.data
+
+            # Grab account and update balance with the incoming value
+            account = Account.objects.get(user=user)
+            incoming_value = Decimal(value)
+            if transaction_type == 'income':
+                account.current_balance += incoming_value
+            if transaction_type == 'expense':
+                account.current_balance -= incoming_value
+            # Save the updated account object to the database
+            account.save()
 
             return Response(serialized_transaction, status=status.HTTP_201_CREATED)
 
@@ -368,79 +383,127 @@ def delete_account(request):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# @api_view(['PUT'])
+# @permission_classes([IsAuthenticated])
+# def update_transaction(request):
+#     if request.method == 'PUT':
+#         user = request.user  # Get the authenticated user
+
+#         try:
+#             transaction_id = request.data.get('transaction_id')
+#             transaction = Transaction.objects.get(pk=transaction_id)
+
+#             account = Account.objects.get(user=user)
+#             balance = account.current_balance
+
+#             print(account.current_balance)
+
+#             # Update value in transaction
+#             incoming_value_str = request.data.get('value')
+#             # Convert incoming value to Decimal
+#             incoming_value = Decimal(incoming_value_str)
+#             print(incoming_value_str)
+#             print(incoming_value)
+
+#             if incoming_value is not None:
+#                 # Deduct the existing transaction value from balance
+#                 balance -= transaction.value
+
+#                 # Update transaction and meta value
+#                 transaction.value = incoming_value
+
+#                 # Add the new transaction value to balance
+#                 balance += incoming_value
+
+#             # Fields to be updated
+#             fields_to_update = ['value', 'recurring', 'recurring_period', 'first_payment_date',
+#                                 'final_payment_date', 'previous_payment_date', 'description']
+
+#             transaction_meta_data_id = request.data.get(
+#                 'transaction_meta_data_id')
+
+#             for field in fields_to_update:
+#                 field_value = transaction_meta_data_id.get(field)
+#                 if field_value is not None:
+#                     setattr(transaction.transaction_meta_data_id,
+#                             field, field_value)
+
+#             # need special function to update recipient and category
+#             recipient_name = transaction_meta_data_id.get('recipient')
+#             category_description = transaction_meta_data_id.get('category')
+
+#             try:
+#                 # print(recipient_name)
+#                 # Check if the category description is within predefined choices
+#                 if category_description not in [choice[0] for choice in Category.CATEGORY_CHOICES]:
+#                     return Response({'error': 'Invalid category description'}, status=status.HTTP_400_BAD_REQUEST)
+
+#                  # Check if the category already exists
+#                 category, created = Category.objects.get_or_create(
+#                     description=category_description)
+#             except Category.DoesNotExist:
+#                 # If the category doesn't exist, create a new one
+#                 return Response({'error': 'No category provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+#             try:
+#                 # print(recipient_name)
+#                 # Check if the recipient already exists
+#                 recipient, created = Recipient.objects.get_or_create(
+#                     name=recipient_name)
+#             except Recipient.DoesNotExist:
+#                 # If the recipient doesn't exist, create a new one
+#                 recipient = Recipient.objects.create(name=recipient_name)
+
+#             # Update transaction metadata with recipient and category
+#             if transaction.transaction_meta_data_id:
+#                 transaction.transaction_meta_data_id.recipient = recipient
+#                 transaction.transaction_meta_data_id.category = category
+#                 transaction.transaction_meta_data_id.save()
+
+#             # Serialize the updated TransactionMetaData instance
+#             serializer = TransactionMetaDataSerializer(
+#                 transaction.transaction_meta_data_id)
+#             serialized_metadata = serializer.data
+
+#             # Serialize the updated Transaction instance
+#             serializer = TransactionSerializer(transaction)
+#             serialized_transaction = serializer.data
+
+#             return Response({'message': 'Transaction updated successfully', 'transaction_meta_data': serialized_metadata, 'transaction': serialized_transaction}, status=status.HTTP_200_OK)
+#         except Transaction.DoesNotExist:
+#             return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_transaction(request):
     if request.method == 'PUT':
+        user = request.user  # Get the authenticated user
+
+        try:
+            # Get Account
+            account = Account.objects.get(user=user)
+        except Account.DoesNotExist:
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        print(account)
 
         try:
             transaction_id = request.data.get('transaction_id')
             transaction = Transaction.objects.get(pk=transaction_id)
 
-            # Update value in transaction
-            value = request.data.get('value')
-            if value is not None:
-                transaction.value = value
+            # Get new fields for transaction and cycle through and update with incoming value
+            transaction_fields_to_update = ['value', 'recurring', 'recurring_period', 'first_payment_date',
+                                            'final_payment_date', 'previous_payment_date', 'description']
 
-            # Fields to be updated
-            fields_to_update = ['value', 'recurring', 'recurring_period', 'first_payment_date',
-                                'final_payment_date', 'previous_payment_date', 'description']
+            # Same for Trans Meta Deta
+            transaction_fields_to_update = ['value', 'recurring', 'recurring_period', 'first_payment_date',
+                                            'final_payment_date', 'previous_payment_date', 'description']
 
-            transaction_meta_data_id = request.data.get(
-                'transaction_meta_data_id')
-
-            for field in fields_to_update:
-                field_value = transaction_meta_data_id.get(field)
-                if field_value is not None:
-                    setattr(transaction.transaction_meta_data_id,
-                            field, field_value)
-
-            # need special function to update recipient and category
-            recipient_name = transaction_meta_data_id.get('recipient')
-            category_description = transaction_meta_data_id.get('category')
-
-            try:
-                # print(transaction_meta_data_id.get('category'))
-                # print(category_description)
-                print(recipient_name)
-                # Check if the category description is within predefined choices
-                if category_description not in [choice[0] for choice in Category.CATEGORY_CHOICES]:
-                    return Response({'error': 'Invalid category description'}, status=status.HTTP_400_BAD_REQUEST)
-
-                 # Check if the category already exists
-                category, created = Category.objects.get_or_create(
-                    description=category_description)
-            except Category.DoesNotExist:
-                # If the category doesn't exist, create a new one
-                return Response({'error': 'No category provided'}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                print(recipient_name)
-                # Check if the recipient already exists
-                recipient, created = Recipient.objects.get_or_create(
-                    name=recipient_name)
-            except Recipient.DoesNotExist:
-                # If the recipient doesn't exist, create a new one
-                recipient = Recipient.objects.create(name=recipient_name)
-
-            # Update transaction metadata with recipient and category
-            if transaction.transaction_meta_data_id:
-                transaction.transaction_meta_data_id.recipient = recipient
-                transaction.transaction_meta_data_id.category = category
-                transaction.transaction_meta_data_id.save()
-
-            # Serialize the updated TransactionMetaData instance
-            serializer = TransactionMetaDataSerializer(
-                transaction.transaction_meta_data_id)
-            serialized_metadata = serializer.data
-
-            # Serialize the updated Transaction instance
-            serializer = TransactionSerializer(transaction)
-            serialized_transaction = serializer.data
-
-            return Response({'message': 'Transaction updated successfully', 'transaction_meta_data': serialized_metadata, 'transaction': serialized_transaction}, status=status.HTTP_200_OK)
         except Transaction.DoesNotExist:
             return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'message': 'Transaction updated successfully'}, status=status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
@@ -448,6 +511,8 @@ def update_transaction(request):
 def delete_transaction(request):
     print(request)
     if request.method == 'DELETE':
+
+        user = request.user  # Get the authenticated user
 
         transaction_id = request.data.get('transaction_id')
         print(request.data)
@@ -458,8 +523,21 @@ def delete_transaction(request):
             transaction = Transaction.objects.get(
                 transaction_id=transaction_id)
 
+            # Get transaction's value so I can take that from balance
+            transaction_value = transaction.transaction_meta_data_id.value
+            value = Decimal(transaction_value)
+
             # Delete the account
             transaction.delete()
+
+            # Grab account and update balance with the transaction value
+            account = Account.objects.get(user=user)
+            if transaction.transaction_meta_data_id.transaction_type == 'expense':
+                account.current_balance += value
+            if transaction.transaction_meta_data_id.transaction_type == 'income':
+                account.current_balance -= value
+            # Save the updated account object to the database
+            account.save()
 
             return Response({'message': 'Transaction deleted successfully'}, status=status.HTTP_200_OK)
 

@@ -1,13 +1,13 @@
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-const useCreateTransaction = () => {
+const useUpdateTransaction = () => {
   const user = useAuth();
   const token = user?.token;
 
-  const createTransaction = async (transactionData, pay, updateData) => {
-    console.log(updateData);
-    console.log(pay);
+  const updateTransaction = async (transactionData, pay, oldTransactionId) => {
+    console.log(` oldTransactionId: ${oldTransactionId}`);
+    console.log("Transaction Data:", transactionData);
 
     // Adding transaction_type = "income/expense" to request
     transactionData["transaction_type"] = pay;
@@ -34,12 +34,22 @@ const useCreateTransaction = () => {
       );
 
       console.log(transactionRes);
+
+      // Chain the delete request after the post request
+      const deleteRes = await client.delete(`/api/delete_transaction`, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        data: { transaction_id: oldTransactionId },
+      });
+
+      console.log(deleteRes);
     } catch (error) {
       console.error("Error during transaction creation:", error);
     }
   };
 
-  return { createTransaction };
+  return { updateTransaction };
 };
 
-export default useCreateTransaction;
+export default useUpdateTransaction;

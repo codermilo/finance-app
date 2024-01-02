@@ -41,8 +41,8 @@ class TransactionMetaDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TransactionMetaData
-        fields = ('recurring', 'recurring_period', 'first_payment_date', 'final_payment_date',
-                  'previous_payment_date', 'recipient', 'description', 'category')
+        fields = ('value', 'recurring', 'recurring_period', 'first_payment_date', 'final_payment_date',
+                  'previous_payment_date', 'recipient', 'description', 'category', 'transaction_type')
 
 
 class TransactionSerializer(serializers.ModelSerializer):

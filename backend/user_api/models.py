@@ -46,6 +46,7 @@ class Category(models.Model):
     def __str__(self):
         return self.description
 
+
 # recipient object for handling names of recipients of transactions
 
 
@@ -67,7 +68,7 @@ class TransactionMetaData(models.Model):
     recurring_period = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(100)],
         null=True,
-        blank=True  # Added blank=True for Django admin
+        blank=True
     )
     first_payment_date = models.DateField()
     final_payment_date = models.DateField(null=True, blank=True)
@@ -77,6 +78,18 @@ class TransactionMetaData(models.Model):
     description = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
+    # Transaction_type can only be "income" or "expense"
+    TRANSACTION_CHOICES = [
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+    ]
+
+    transaction_type = models.CharField(
+        max_length=10,
+        choices=TRANSACTION_CHOICES,
+        default='expense'
+    )
+
     def __str__(self):
         return f"Transaction {self.transaction_meta_data_id}: {self.description}"
 
@@ -85,7 +98,7 @@ class TransactionMetaData(models.Model):
 
 class Transaction(models.Model):
     transaction_id = models.AutoField(primary_key=True)
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    # value = models.DecimalField(max_digits=10, decimal_places=2)
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name='transactions')
     transaction_meta_data_id = models.ForeignKey(
