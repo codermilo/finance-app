@@ -7,7 +7,13 @@ import getChoices from "../../hooks/getChoices";
 import FormField from "../Form/FormField";
 import useUpdateTransaction from "../../hooks/useUpdateTransaction";
 
-const UpdateTransactionForm = ({ fields, form, pay, updateData }) => {
+const UpdateTransactionForm = ({
+  fields,
+  form,
+  pay,
+  updateData,
+  fetchFunc,
+}) => {
   // Import useUpdateTransaction hook
 
   const { updateTransaction } = useUpdateTransaction();
@@ -121,6 +127,7 @@ const UpdateTransactionForm = ({ fields, form, pay, updateData }) => {
         console.log(formattedFormData);
         // Call updateTransaction function from hook
         updateTransaction(formattedFormData, pay, oldTransactionId); // Pass the entire formData object
+        setTimeout(fetchFunc(), 500);
         break;
       default:
         console.log("error, form submit not working");

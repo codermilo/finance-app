@@ -6,11 +6,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import getChoices from "../../hooks/getChoices";
 import FormField from "./FormField";
 
-const CreateTransactionForm = ({ fields, form, pay, updateData }) => {
+const CreateTransactionForm = ({
+  fields,
+  form,
+  pay,
+  updateData,
+  transactionChange,
+  fetchFunc,
+}) => {
   // Import useCreateTransaction hook
   const { createTransaction } = useCreateTransaction();
-
-  // console.log(updateData);
 
   // Import getChoices hook
   const { data, loading, error } = getChoices();
@@ -118,6 +123,10 @@ const CreateTransactionForm = ({ fields, form, pay, updateData }) => {
       case "createTransaction":
         // Call createTransaction function from hook
         createTransaction(formattedFormData, pay, updateData); // Pass the entire formData object
+        console.log("submitting");
+        setTimeout(fetchFunc(), 500);
+        setTimeout(transactionChange(null), 500);
+
         break;
       default:
         console.log("error, form submit not working");
@@ -157,6 +166,7 @@ const CreateTransactionForm = ({ fields, form, pay, updateData }) => {
                   handleDateChange={handleDateChange}
                   handleChangeCheckbox={handleChangeCheckbox}
                   data={data}
+                  key={field}
                 />
               </div>
             )

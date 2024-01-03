@@ -43,29 +43,10 @@ export default function Transaction(props) {
     "category",
   ];
 
-  // Delete transaction function
-  const deleteTransaction = async (id) => {
-    const client = axios.create({
-      baseURL: "http://127.0.0.1:8000",
-      withCredentials: true, // Automatically sends cookies with requests
-      xsrfCookieName: "csrftoken", // Name of the CSRF token cookie set by Django
-      xsrfHeaderName: "X-CSRFToken", // Header name to send the CSRF token
-      headers: {
-        "Content-Type": "application/json", // Set Content-Type explicitly
-        Authorization: `Token ${token}`,
-      },
-    });
+  // Importing delete function
+  const { deleteFunc } = props;
 
-    try {
-      const transactionRes = await client.delete(`/api/delete_transaction`, {
-        data: { transaction_id: id }, // Data goes here
-      });
-      console.log(transactionRes);
-    } catch (error) {
-      console.error("Error during transaction deletion:", error);
-      console.error("Response data:", error.response.data);
-    }
-  };
+  const { fetchFunc } = props;
 
   return (
     <div className="transaction__collection">
@@ -81,7 +62,7 @@ export default function Transaction(props) {
           </div>
           <div className="transaction__buttons">
             <button onClick={() => setUpdateForm(true)}>Update</button>
-            <button onClick={() => deleteTransaction(id)}>Delete</button>
+            <button onClick={() => deleteFunc(id)}>Delete</button>
           </div>
         </div>
       ) : (
@@ -92,6 +73,7 @@ export default function Transaction(props) {
               form="createTransaction"
               pay={pay}
               updateData={transaction}
+              fetchFunc={fetchFunc}
             />
           </div>
           <div className="transaction__buttons">

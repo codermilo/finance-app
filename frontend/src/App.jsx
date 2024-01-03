@@ -11,96 +11,23 @@ import TransactionList from "./components/AuthRoute/TransactionList";
 import DatePicker from "./components/DatePicker/DatePicker";
 import DatePickerComponent from "./components/DatePicker/DatePicker";
 import TransactionButtonComponent from "./components/AddTransactionsExpenses/AddTransactionsExpenses";
+import useFetch from "./hooks/useFetch";
+import AuthRoute from "./components/AuthRoute/AuthRoute";
 
 export default function App() {
   // let's grab the auth status from context
   const authStatus = useAuth();
   // decide on whether to show register or login form if not authorised
   const [formOptions, setFormOptions] = useState("register");
-  // Store form fields in an array
-  const formFields = [
-    "value",
-    "recurring",
-    "recurring_period",
-    "first_payment_date",
-    "final_payment_date",
-    "previous_payment_date",
-    "recipient",
-    "description",
-    "category",
-  ];
-  // decide on whether to show add expense or income form
-  const [transactionOptions, setTransactionOptions] = useState(null);
-
-  // State to hold form data for updating a transaction?
-  const [updateData, setUpdateData] = useState(null);
-  console.log(updateData);
-
-  // write function to toggle transactionOptions to send to transaction button component
-  const transactionChange = (arg) => {
-    setTransactionOptions(arg);
-  };
 
   // function sent to buttons on navbar to decide what options are shown in the form
   const loginReg = (arg) => {
     setFormOptions(arg);
   };
 
-  // function to set update transaction data to pass to transaction form
-  const updateTransaction = (data) => {
-    setUpdateData(data);
-    console.log(updateData);
-  };
-
   // If logged in then present this code
   if (authStatus.isLoggedIn) {
-    return (
-      <div className="App">
-        <Navbar loginRegFunc={loginReg} />
-        <div className="main__container">
-          <div className="panel">
-            {/* Buttons to add expenses. Looks the same logged in or not */}
-            <TransactionButtonComponent handleClick={transactionChange} />
-            {/* Either shows component to create account or shows account detail */}
-            <CreateAccount />
-          </div>
-          <div className="panel">
-            {transactionOptions === "expense" ? (
-              <div className="create_transaction__container">
-                <button onClick={() => transactionChange(null)}>Close</button>
-                <h1>ADD EXPENSE</h1>
-                <CreateTransactionForm
-                  fields={formFields}
-                  form="createTransaction"
-                  pay="expense"
-                  updateData={updateData}
-                />
-              </div>
-            ) : transactionOptions === "income" ? (
-              <div className="create_transaction__container">
-                <button onClick={() => transactionChange(null)}>Close</button>
-                <h1>ADD INCOME</h1>
-                <CreateTransactionForm
-                  fields={formFields}
-                  form="createTransaction"
-                  pay="income"
-                  updateData={updateData}
-                />
-              </div>
-            ) : (
-              <div className="transactions">
-                <h1>TRANSACTIONS</h1>
-                <TransactionList
-                  updateFunc={updateTransaction}
-                  setFormFunc={transactionChange}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <AuthRoute />;
   }
 
   // If not logged in the present this code

@@ -8,8 +8,8 @@ export default function TransactionList(props) {
   const { updateFunc } = props;
   // Passing form set function to transaction
   const { setFormFunc } = props;
-  const { data, loading, error } = useFetch();
-  console.log(props);
+  const { data, loading, error } = props;
+
   const transactionsArray = data?.transactions;
   if (loading) {
     return <p>Loading...</p>;
@@ -26,6 +26,8 @@ export default function TransactionList(props) {
             transaction={transaction}
             updateFunc={updateFunc}
             setFormFunc={setFormFunc}
+            deleteFunc={props.deleteFunc}
+            fetchFunc={props.fetchFunc}
           />
         ))}
       </ul>
