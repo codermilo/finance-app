@@ -3,7 +3,7 @@ import "../../styles/Form.css";
 import { useAuth } from "../../context/AuthContext";
 import useCreateAccount from "../../hooks/useCreateAccount";
 
-const CreateAccountForm = ({ fields, form }) => {
+const CreateAccountForm = ({ fields, form, fetchFunc }) => {
   const user = useAuth();
 
   // Import useCreateTransaction hook
@@ -40,9 +40,10 @@ const CreateAccountForm = ({ fields, form }) => {
       case "createAccount":
         // Call createAccount function from hook
         const bank = formData["bank name"];
-        const balance = formData["current balance"];
+        // const balance = formData["current balance"];
 
-        createAccount(bank, balance);
+        createAccount(bank);
+        setTimeout(fetchFunc(), 500);
         break;
       default:
         console.log("error, form submit not working");

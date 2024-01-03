@@ -124,11 +124,6 @@ export default function AuthRoute() {
     }
   };
 
-  // const { data, loading, error } = useFetch();
-  // if (data) {
-  //   console.log(data);
-  // }
-
   return (
     <div className="App">
       <Navbar loginRegFunc={loginReg} />
@@ -137,7 +132,7 @@ export default function AuthRoute() {
           {/* Buttons to add expenses. Looks the same logged in or not */}
           <TransactionButtonComponent handleClick={transactionChange} />
           {/* Either shows component to create account or shows account detail */}
-          <CreateAccount />
+          <CreateAccount fetchFunc={fetchTransactions} />
         </div>
         <div className="panel">
           {transactionOptions === "expense" ? (

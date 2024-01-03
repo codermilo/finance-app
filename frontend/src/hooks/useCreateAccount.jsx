@@ -8,7 +8,7 @@ const useCreateAccount = () => {
   // console.log("Bank:", bank); // Check the value of bank
   // console.log("Balance:", balance); // Check the value of balance
 
-  const createAccount = async (bank, balance) => {
+  const createAccount = async (bank) => {
     if (account) {
       console.error("User or account ID is null");
       return;
@@ -25,7 +25,7 @@ const useCreateAccount = () => {
       const transactionRes = await client.post(
         "/api/create_account",
         {
-          current_balance: balance,
+          // current_balance: balance,
           bank_name: bank,
           // user: userId,
         },

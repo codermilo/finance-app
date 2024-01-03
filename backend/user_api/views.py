@@ -158,15 +158,15 @@ def create_account(request):
         # You might receive some additional data in the request body
         # For example, 'bank_name', 'initial_balance', etc.
         bank_name = request.data.get('bank_name')
-        initial_balance = request.data.get(
-            'current_balance', 0)  # Default balance
-        balance = Decimal(initial_balance)
+        # initial_balance = request.data.get(
+        #     'current_balance', 0)  # Default balance
+        # balance = Decimal(initial_balance)
 
         try:
             # Create the account linked to the authenticated user
             account = Account.objects.create(
                 bank_name=bank_name,
-                current_balance=balance,
+                current_balance=0,
                 user=user  # Link the account to the user
             )
 
@@ -184,25 +184,25 @@ def create_account(request):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    elif request.method == 'PUT':
-        user = request.user  # Get the authenticated user
-        # Handle account update logic
-        try:
-            account = Account.objects.get(user=user)  # Get the user's account
-            serializer = AccountSerializer(
-                account, data=request.data, partial=True)
+    # elif request.method == 'PUT':
+    #     user = request.user  # Get the authenticated user
+    #     # Handle account update logic
+    #     try:
+    #         account = Account.objects.get(user=user)  # Get the user's account
+    #         serializer = AccountSerializer(
+    #             account, data=request.data, partial=True)
 
-            if serializer.is_valid():
-                serializer.save()
-                return Response({'message': 'Account updated successfully', 'account': serializer.data}, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #         if serializer.is_valid():
+    #             serializer.save()
+    #             return Response({'message': 'Account updated successfully', 'account': serializer.data}, status=status.HTTP_200_OK)
+    #         else:
+    #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        except Account.DoesNotExist:
-            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+    #     except Account.DoesNotExist:
+    #         return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #     except Exception as e:
+    #         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # creating transaction
 
@@ -335,11 +335,11 @@ def update_account(request):
 
         # Retrieve values sent in request payload and update account with them
         bank_name = request.data.get('bank_name')
-        current_balance = request.data.get(
-            'current_balance', 0)
+        # current_balance = request.data.get(
+        #     'current_balance', 0)
 
         account.bank_name = bank_name
-        account.current_balance = current_balance
+        # account.current_balance = current_balance
 
         account.save()
 
