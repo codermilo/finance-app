@@ -17,7 +17,7 @@ class CustomUser(AbstractUser):
 class Account(models.Model):
     account_id = models.AutoField(primary_key=True)
     current_balance = models.DecimalField(
-        default=500, max_digits=10, decimal_places=2)
+        default=0, max_digits=10, decimal_places=2)
     bank_name = models.CharField(max_length=100)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE,
                                 related_name='associated_account', null=True, blank=True)
@@ -53,6 +53,9 @@ class Category(models.Model):
 class Recipient(models.Model):
     # Assuming unique recipient names
     name = models.CharField(max_length=100, unique=True)
+    # I want to tie recipients to a specific account
+    account = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name='transactions')
 
     def __str__(self):
         return self.name
@@ -93,7 +96,8 @@ class Transaction(models.Model):
     transaction_id = models.AutoField(primary_key=True)
     # value = models.DecimalField(max_digits=10, decimal_places=2)
     # ADDING DATE FOR EACH TRANSACTION
-    # date = models.DateField()
+    # WHEN I MAKE A NEW TRASACTION WITH RECURRING VIEW I NEED TO GIVE A NEW DATE (Same date but new month)
+    date = models.DateField()
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name='transactions')
     transaction_meta_data_id = models.ForeignKey(
