@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import register_user, user_login, user_logout, get_user, create_account, create_transaction, get_choices, update_account, delete_account, update_transaction, delete_transaction
+from .views import register_user, user_login, user_logout, get_user, create_account, create_transaction, get_choices, update_account, delete_account, update_transaction, delete_transaction, get_transaction_meta_datas
 from rest_framework.authtoken.views import obtain_auth_token
 
 
@@ -11,6 +11,8 @@ urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('get_user', get_user, name='get_user'),
     path('get_choices', get_choices, name='get_choices'),
+    path('get_transaction_meta_datas', get_transaction_meta_datas,
+         name='get_transaction_meta_datas'),
     path('create_account', create_account, name='create_account'),
     path('update_account', update_account, name='update_account'),
     path('delete_account', delete_account, name='delete_account'),

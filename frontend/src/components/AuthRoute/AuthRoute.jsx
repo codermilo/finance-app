@@ -15,10 +15,10 @@ export default function AuthRoute() {
   const formFields = [
     "value",
     "recurring",
-    "recurring_period",
+    // "recurring_period",
     "first_payment_date",
-    "final_payment_date",
-    "previous_payment_date",
+    // "final_payment_date",
+    // "previous_payment_date",
     "recipient",
     "description",
     "category",

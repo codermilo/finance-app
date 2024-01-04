@@ -217,10 +217,9 @@ def create_transaction(request):
         incoming_value = request.data.get('value')
         value = Decimal(incoming_value)
         recurring = request.data.get('recurring', False)
-        recurring_period = request.data.get('recurring_period')
+
         first_payment_date = request.data.get('first_payment_date')
-        final_payment_date = request.data.get('final_payment_date')
-        previous_payment_date = request.data.get('previous_payment_date')
+
         recipient_name = request.data.get('recipient')
         description = request.data.get('description')
         category_description = request.data.get(
@@ -260,10 +259,9 @@ def create_transaction(request):
             transaction_meta_data = TransactionMetaData.objects.create(
                 value=value,
                 recurring=recurring,
-                recurring_period=recurring_period,
+
                 first_payment_date=first_payment_date,
-                final_payment_date=final_payment_date,
-                previous_payment_date=previous_payment_date,
+
                 recipient=recipient,
                 description=description,
                 category=category,
@@ -543,6 +541,53 @@ def delete_transaction(request):
 
         except transaction.DoesNotExist:
             return Response({'error': 'Transaction not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_transaction_meta_datas(request):
+    if request.method == 'GET':
+
+        user = request.user  # Get the authenticated user
+        account = Account.objects.get(user=user)
+
+        # Get all transactions from an account
+
+        try:
+
+            # Assuming you have an Account instance named 'account'
+
+            # Retrieve all TransactionMetaData associated with the account
+            # transaction_metadata_list = TransactionMetaData.objects.filter(
+            #     transaction_meta_data__transaction__account=account)
+
+            # serializer = TransactionMetaDataSerializer(
+            #     transaction_metadata_list, many=True)
+
+            transactions_for_account = Transaction.objects.filter(
+                account=account)
+            print(transactions_for_account)
+
+            # serializing all the transactions related to the account
+            # serializer = TransactionSerializer(
+            #     transactions_for_account, many=True)
+
+            # find the trans meta data for every transaction in transactions_for_account
+            transactionmetadatas_for_account = [
+                transaction.transaction_meta_data_id for transaction in transactions_for_account]
+
+            # Serialize the trans meta data to send back
+            serializer = TransactionMetaDataSerializer(
+                transactionmetadatas_for_account, many=True)
+
+            data = {
+                'transaction_metadata_list': serializer.data,
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

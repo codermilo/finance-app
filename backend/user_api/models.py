@@ -65,14 +65,7 @@ class TransactionMetaData(models.Model):
     transaction_meta_data_id = models.AutoField(primary_key=True)
     value = models.DecimalField(max_digits=10, decimal_places=2)
     recurring = models.BooleanField(default=False)
-    recurring_period = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(100)],
-        null=True,
-        blank=True
-    )
     first_payment_date = models.DateField()
-    final_payment_date = models.DateField(null=True, blank=True)
-    previous_payment_date = models.DateField(null=True, blank=True)
     recipient = models.ForeignKey(
         Recipient, on_delete=models.CASCADE, null=True)
     description = models.CharField(max_length=100)
@@ -99,6 +92,8 @@ class TransactionMetaData(models.Model):
 class Transaction(models.Model):
     transaction_id = models.AutoField(primary_key=True)
     # value = models.DecimalField(max_digits=10, decimal_places=2)
+    # ADDING DATE FOR EACH TRANSACTION
+    # date = models.DateField()
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name='transactions')
     transaction_meta_data_id = models.ForeignKey(

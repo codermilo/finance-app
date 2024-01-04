@@ -49,11 +49,11 @@ const CreateTransactionForm = ({
       category: data.category,
       description: data.description,
       first_payment_date: data.first_payment_date,
-      final_payment_date: data.final_payment_date,
-      previous_payment_date: data.previous_payment_date,
+      // final_payment_date: data.final_payment_date,
+      // previous_payment_date: data.previous_payment_date,
       recipient: data.recipient,
       recurring: data.recurring,
-      recurring_period: data.recurring_period,
+      // recurring_period: data.recurring_period,
       value: data.value,
     };
   }
@@ -135,42 +135,39 @@ const CreateTransactionForm = ({
   };
 
   // Function to determine if a field should be shown based on 'recurring' value
-  const shouldShowField = (fieldName) => {
-    if (fieldName === "recurring") {
-      return true; // Always show 'recurring' field
-    }
-    return (
-      formData.recurring ||
-      ![
-        "recurring_period",
-        // "first_payment_date",
-        "final_payment_date",
-        "previous_payment_date",
-      ].includes(fieldName)
-    );
-  };
+  // const shouldShowField = (fieldName) => {
+  //   if (fieldName === "recurring") {
+  //     return true; // Always show 'recurring' field
+  //   }
+  //   return (
+  //     formData.recurring ||
+  //     ![
+  //       "recurring_period",
+  //       // "first_payment_date",
+  //       "final_payment_date",
+  //       "previous_payment_date",
+  //     ].includes(fieldName)
+  //   );
+  // };
 
   return (
     <div className="form-container">
       <form onSubmit={submitTransCreation}>
         {/* Map over form fields */}
-        {fields.map(
-          (field) =>
-            shouldShowField(field) && (
-              <div key={field} className="form-group">
-                <label className="label">{field}</label>
-                <FormField
-                  field={field}
-                  formData={formData}
-                  handleChange={handleChange}
-                  handleDateChange={handleDateChange}
-                  handleChangeCheckbox={handleChangeCheckbox}
-                  data={data}
-                  key={field}
-                />
-              </div>
-            )
-        )}
+        {fields.map((field) => (
+          <div key={field} className="form-group">
+            <label className="label">{field}</label>
+            <FormField
+              field={field}
+              formData={formData}
+              handleChange={handleChange}
+              handleDateChange={handleDateChange}
+              handleChangeCheckbox={handleChangeCheckbox}
+              data={data}
+              key={field}
+            />
+          </div>
+        ))}
 
         {/* Submit button */}
         <button type="submit" className="button">
