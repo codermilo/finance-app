@@ -558,22 +558,8 @@ def get_transaction_meta_datas(request):
 
         try:
 
-            # Assuming you have an Account instance named 'account'
-
-            # Retrieve all TransactionMetaData associated with the account
-            # transaction_metadata_list = TransactionMetaData.objects.filter(
-            #     transaction_meta_data__transaction__account=account)
-
-            # serializer = TransactionMetaDataSerializer(
-            #     transaction_metadata_list, many=True)
-
             transactions_for_account = Transaction.objects.filter(
                 account=account)
-            print(transactions_for_account)
-
-            # serializing all the transactions related to the account
-            # serializer = TransactionSerializer(
-            #     transactions_for_account, many=True)
 
             # find the trans meta data for every transaction in transactions_for_account
             transactionmetadatas_for_account = [
