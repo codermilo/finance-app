@@ -1,6 +1,6 @@
 
 from django.urls import path
-from .views import register_user, user_login, user_logout, get_user, create_account, create_transaction, get_choices, update_account, delete_account, update_transaction, delete_transaction, get_transaction_meta_datas
+from .views import register_user, user_login, user_logout, get_user, create_account, create_transaction, get_choices, update_account, delete_account, delete_all_transactions, delete_transaction, get_transaction_meta_datas, get_test_func
 from rest_framework.authtoken.views import obtain_auth_token
 
 
@@ -13,10 +13,13 @@ urlpatterns = [
     path('get_choices', get_choices, name='get_choices'),
     path('get_transaction_meta_datas', get_transaction_meta_datas,
          name='get_transaction_meta_datas'),
+    path('get_test_func', get_test_func,
+         name='get_test_func'),
     path('create_account', create_account, name='create_account'),
     path('update_account', update_account, name='update_account'),
     path('delete_account', delete_account, name='delete_account'),
     path('create_transaction', create_transaction, name='create_transaction'),
-    path('update_transaction', update_transaction, name='update_transaction'),
     path('delete_transaction', delete_transaction, name='delete_transaction'),
+    path('delete_all_transactions', delete_all_transactions,
+         name='delete_all_transactions'),
 ]

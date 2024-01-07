@@ -28,6 +28,7 @@ const CreateTransactionForm = ({
       case "recurring":
         acc[field] = false;
         break;
+      case "date":
       case "first_payment_date":
         acc[field] = new Date();
         break;

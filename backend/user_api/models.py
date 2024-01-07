@@ -3,6 +3,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from datetime import datetime
 
 
 class CustomUser(AbstractUser):
@@ -55,7 +56,7 @@ class Recipient(models.Model):
     name = models.CharField(max_length=100, unique=True)
     # I want to tie recipients to a specific account
     account = models.ForeignKey(
-        Account, on_delete=models.CASCADE, related_name='transactions')
+        Account, on_delete=models.CASCADE, related_name='recipient', null=True)
 
     def __str__(self):
         return self.name
@@ -97,7 +98,7 @@ class Transaction(models.Model):
     # value = models.DecimalField(max_digits=10, decimal_places=2)
     # ADDING DATE FOR EACH TRANSACTION
     # WHEN I MAKE A NEW TRASACTION WITH RECURRING VIEW I NEED TO GIVE A NEW DATE (Same date but new month)
-    date = models.DateField()
+    date = models.DateField(default=datetime.now)
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name='transactions')
     transaction_meta_data_id = models.ForeignKey(

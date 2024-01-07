@@ -59,6 +59,7 @@ const FormField = ({
           ))}
         </select>
       );
+    case "date":
     case "first_payment_date":
       return (
         <DatePicker
