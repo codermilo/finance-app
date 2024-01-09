@@ -35,18 +35,9 @@ class AccountSerializer(serializers.ModelSerializer):
         return instance
 
 
-class TransactionMetaDataSerializer(serializers.ModelSerializer):
+class TransactionSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField()
     recipient = serializers.StringRelatedField()
-
-    class Meta:
-        model = TransactionMetaData
-        fields = ('value', 'recurring', 'first_payment_date',
-                  'recipient', 'description', 'category', 'transaction_type')
-
-
-class TransactionSerializer(serializers.ModelSerializer):
-    transaction_meta_data_id = TransactionMetaDataSerializer()
 
     class Meta:
         model = Transaction
