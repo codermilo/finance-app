@@ -31,6 +31,7 @@ from rest_framework.permissions import AllowAny
 from decimal import Decimal
 from datetime import datetime
 from django.db.models import Count
+from dateutil.relativedelta import relativedelta
 
 
 # Endpoint for user logout, requires authentication
@@ -110,6 +111,7 @@ def register_user(request):
 def get_user(request):
     if request.method == 'GET':
         user = request.user  # Get the user associated with the token
+        account = None
 
         try:
             token = Token.objects.get(user=user)
@@ -132,7 +134,51 @@ def get_user(request):
                 transactions, many=True)
             serialized_transactions = transaction_serializer.data
         except Account.DoesNotExist:
-            pass  # Handle the case where the account doesn't exist gracefully
+            pass
+
+        # Get the current month and year
+        today = datetime.now()
+        current_month = today.month
+        current_year = today.year
+
+        # Get income transactions for the current month and year
+        current_month_transactions_income = Transaction.objects.filter(
+            date__month=current_month,
+            date__year=current_year,
+            account=account,
+            transaction_meta_data_id__transaction_type='income'
+        )
+
+        # Get sum of all ingoing payments
+        income_value = sum(
+            transaction.transaction_meta_data_id.value for transaction in current_month_transactions_income)
+
+        # Get income transactions for the current month and year
+        current_month_transactions_expense = Transaction.objects.filter(
+            date__month=current_month,
+            date__year=current_year,
+            account=account,
+            transaction_meta_data_id__transaction_type='expense'
+        )
+
+        # Get sum of all outgoing payments
+        expense_value = sum(
+            transaction.transaction_meta_data_id.value for transaction in current_month_transactions_expense)
+
+        # Get transactions for the current month and year
+        current_month_transactions = Transaction.objects.filter(
+            date__month=current_month,
+            date__year=current_year,
+            account=account
+        )
+
+        for transaction in current_month_transactions:
+         # Access the transaction data for this month and year
+            print(
+                f"Transaction {transaction.transaction_id}: {transaction.date}")
+
+        current_month_transactions_serializer = TransactionSerializer(
+            current_month_transactions, many=True)
 
         serializer = UserSerializer(user)
         serialized_user = serializer.data
@@ -142,7 +188,10 @@ def get_user(request):
             'username': serialized_user['username'],
             'token': user_token,
             'account': serialized_account,
-            'transactions': serialized_transactions
+            'transactions': serialized_transactions,
+            'current_month_transactions': current_month_transactions_serializer.data,
+            'expense_total': expense_value,
+            'income_total': income_value
         }
 
         return Response(user_details, status=status.HTTP_200_OK)
@@ -157,12 +206,8 @@ def create_account(request):
     if request.method == 'POST':
         user = request.user  # Get the authenticated user
 
-        # You might receive some additional data in the request body
-        # For example, 'bank_name', 'initial_balance', etc.
+        # get namne off account from request
         bank_name = request.data.get('bank_name')
-        # initial_balance = request.data.get(
-        #     'current_balance', 0)  # Default balance
-        # balance = Decimal(initial_balance)
 
         try:
             # Create the account linked to the authenticated user
@@ -219,16 +264,11 @@ def create_transaction(request):
         incoming_value = request.data.get('value')
         value = Decimal(incoming_value)
         recurring = request.data.get('recurring', False)
-
-        # first_payment_date = request.data.get('first_payment_date')
-
         recipient_name = request.data.get('recipient')
         description = request.data.get('description')
         category_description = request.data.get(
             'category')  # New category description
         transaction_type = request.data.get('transaction_type')
-        # print(category_description)
-        # print(request.data.get('value'))
 
         # GET DATE FOR TRANSACTION (NOT META)
         date = request.data.get('date')
@@ -293,12 +333,11 @@ def create_transaction(request):
 
             date_time = datetime.strptime(date, '%Y-%m-%d')
             first_payment_date = date_time
-            print(first_payment_date.month)
+
             today = datetime.now()
-            print(today.month)
+
             if first_payment_date.month == today.month and first_payment_date.year == today.year:
-                print(first_payment_date)
-                print(today.month)
+
                 if transaction_type == 'income':
                     account.current_balance += incoming_value
                 if transaction_type == 'expense':
@@ -353,11 +392,8 @@ def update_account(request):
 
         # Retrieve values sent in request payload and update account with them
         bank_name = request.data.get('bank_name')
-        # current_balance = request.data.get(
-        #     'current_balance', 0)
 
         account.bank_name = bank_name
-        # account.current_balance = current_balance
 
         account.save()
 
@@ -410,8 +446,6 @@ def delete_transaction(request):
         user = request.user  # Get the authenticated user
 
         transaction_id = request.data.get('transaction_id')
-        print(request.data)
-        print(transaction_id)
 
         try:
             # Retrieve the account linked to the authenticated user
@@ -429,12 +463,10 @@ def delete_transaction(request):
             # Grab account and update balance with the transaction value
             account = Account.objects.get(user=user)
 
-            print(date.month)
             today = datetime.now()
-            print(today.month)
+
             if date.month == today.month and date.year == today.year:
-                print(date.month)
-                print(today.month)
+
                 if transaction.transaction_meta_data_id.transaction_type == 'expense':
                     account.current_balance += value
                 if transaction.transaction_meta_data_id.transaction_type == 'income':
@@ -465,21 +497,6 @@ def get_transaction_meta_datas(request):
 
         try:
 
-            # transactions_for_account = Transaction.objects.filter(
-            #     account=account)
-
-            # # find the trans meta data for every transaction in transactions_for_account
-            # transactionmetadatas_for_account = [
-            #     transaction.transaction_meta_data_id for transaction in transactions_for_account]
-
-            # # Serialize the trans meta data to send back
-            # serializer = TransactionMetaDataSerializer(
-            #     transactionmetadatas_for_account, many=True)
-
-            # data = {
-            #     'transaction_metadata_list': serializer.data,
-            # }
-
             # --------------------- Duplicate checking code ------------------------------------
             # Get a count of each unique transaction_meta_data_id
             metadata_count = Transaction.objects.filter(account=account).values(
@@ -493,9 +510,6 @@ def get_transaction_meta_datas(request):
                     print(meta_obj.recurring)
                     print(meta_obj.value)
 
-                # if item['recurring'] is True:
-                #     print(item['transaction_meta_data_id'])
-
             # Filter out duplicates (where count is greater than 1)
             duplicates = [item['transaction_meta_data_id']
                           for item in metadata_count if item['count'] > 1]
@@ -507,11 +521,11 @@ def get_transaction_meta_datas(request):
             # Now, duplicate_transactions contains transactions with duplicate metadata
             # You can loop through these to inspect or handle them as needed
             # Serialize duplicate transactions
-            duplicate_Serializer = TransactionSerializer(
+            duplicate_serializer = TransactionSerializer(
                 duplicate_transactions, many=True)
 
             data = {
-                'trans_with_duplicates': duplicate_Serializer.data, 'count': metadata_count,
+                'trans_with_duplicates': duplicate_serializer.data, 'count': metadata_count,
             }
 
             return Response(data, status=status.HTTP_200_OK)
@@ -531,73 +545,17 @@ def get_test_func(request):
         # Get the user's account
         try:
             account = Account.objects.get(user=user)
+            # resetting account balance
             account.current_balance = 0
             account.save()
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Get all transactions from an account
-
         try:
-
-            # transactions_for_account = Transaction.objects.filter(
-            #     account=account)
-
-            # # serialize transactions to send back
-            # serialized_transactions = TransactionSerializer(
-            #     transactions_for_account, many=True)
-
-            # # find the trans meta data for every transaction in transactions_for_account
-            # transactionmetadatas_for_account = [
-            #     transaction.transaction_meta_data_id for transaction in transactions_for_account]
-
-            # # Serialize the trans meta data to send back
-            # meta_data_serializer = TransactionMetaDataSerializer(
-            #     transactionmetadatas_for_account, many=True)
-
-            # # Filter transactions based on metadata's transaction_type
-            # expense_transactions = Transaction.objects.filter(
-            #     account=account,
-            #     transaction_meta_data_id__transaction_type='expense'
-            # )
-
-            # serialized_expenses = TransactionSerializer(
-            #     expense_transactions, many=True)
-
-            # # Filter transactions based on metadata's transaction_type
-            # income_transactions = Transaction.objects.filter(
-            #     account=account,
-            #     transaction_meta_data_id__transaction_type='income'
-            # )
-
-            # serialized_incomes = TransactionSerializer(
-            #     income_transactions, many=True)
-
-            # # Filter only the value of incomes
-            # income_values = sum(
-            #     transaction.transaction_meta_data_id.value for transaction in income_transactions)
-
-            # # Filter only the value of expenses
-            # expense_values = sum(
-            #     transaction.transaction_meta_data_id.value for transaction in expense_transactions)
-
-            # balance = income_values - expense_values
-
-            # # Get all transactions that's meta data has recurring as true
-            # recurring_transactions = TransactionMetaData.objects.filter(
-            #     transaction_meta_data__account=account,
-            #     recurring=True
-            # )
-            # # Duplicate transactions that's meta data has recurring as true
-            # # print(recurring_transactions)
-            # recurring_serializer = TransactionMetaDataSerializer(
-            #     recurring_transactions, many=True)
-
-            # # Get all transactions that's meta data has recurring as false
-            # not_recurring_transactions = TransactionMetaData.objects.filter(
-            #     transaction_meta_data__account=account,
-            #     recurring=False
-            # )
+            # Get the current month and year
+            today = datetime.now()
+            current_month = today.month
+            current_year = today.year
 
             # ------------ ADDING CODE -------------
             # Get a count of each unique transaction_meta_data_id
@@ -608,12 +566,15 @@ def get_test_func(request):
                 meta_obj = TransactionMetaData.objects.get(
                     transaction_meta_data_id=item['transaction_meta_data_id'])
                 if meta_obj.recurring is True:
+                    delta = relativedelta(meta_obj.first_payment_date, today)
+                    if delta.months > 0 or delta.years > 0:
+                        # first_payment_date is in a future month compared to today
+                        continue  # Skip creating a transaction for this meta_obj
 
                     print(meta_obj.recurring)
                     print(meta_obj.value)
 
                     first_payment_day = meta_obj.first_payment_date.day
-                    today = datetime.now()
                     new_date = datetime(today.year, today.month,
                                         first_payment_day).date()
 
@@ -632,36 +593,35 @@ def get_test_func(request):
                         # Save the updated account object to the database
                     account.save()
 
+            # Get income transactions for the current month and year
+            current_month_transactions_income = Transaction.objects.filter(
+                date__month=current_month,
+                date__year=current_year,
+                account=account,
+                transaction_meta_data_id__transaction_type='income'
+            )
+
+            income_value = sum(
+                transaction.transaction_meta_data_id.value for transaction in current_month_transactions_income)
+
+            print(current_month_transactions_income)
+            print(income_value)
+
+            # Get income transactions for the current month and year
+            current_month_transactions_expense = Transaction.objects.filter(
+                date__month=current_month,
+                date__year=current_year,
+                account=account,
+                transaction_meta_data_id__transaction_type='expense'
+            )
+
+            expense_value = sum(
+                transaction.transaction_meta_data_id.value for transaction in current_month_transactions_expense)
+
+            print(current_month_transactions_expense)
+            print(expense_value)
+
             # ------------------ END -------------------
-
-            # for meta_data in metadata_count:
-            #     # Assuming meta_data.first_payment_date is a datetime.date object
-            #     first_payment_day = meta_data.first_payment_date.day
-
-            #     print(first_payment_day)
-
-            #     # Get today's date
-            #     today = datetime.now()
-
-            #     # Create a new date with the day from first_payment_date and the month and year from today
-            #     new_date = datetime(today.year, today.month,
-            #                         first_payment_day).date()
-
-            #     print(new_date.strftime('%Y-%m-%d'))
-
-            #     # Create new transaction based on recurring meta datas
-            #     Transaction.objects.create(
-            #         # Add date
-            #         date=formatted_today,
-            #         # value=value,
-            #         account=account,
-            #         transaction_meta_data_id=meta_data,
-            #     )
-
-            # Duplicate transactions that's meta data has recurring as false
-            # print(not_recurring_transactions)
-            # not_recurring_serializer = TransactionMetaDataSerializer(
-            #     not_recurring_transactions, many=True)
 
             transactions_for_account = Transaction.objects.filter(
                 account=account)
@@ -673,8 +633,8 @@ def get_test_func(request):
             data = {
                 'transactions': serialized_transactions.data,
                 # 'transaction_metadata_list': meta_data_serializer.data,
-                # 'expenses': serialized_expenses.data,
-                # 'incomes': serialized_incomes.data,
+                'expenses': expense_value,
+                'incomes': income_value,
                 # 'income_value': income_values,
                 # 'expense_value': expense_values,
                 # 'balance': balance,
@@ -709,6 +669,43 @@ def delete_all_transactions(request):
             account.save()
 
             return Response('successfully deleted transactions', status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_transactions_by_month(request):
+    if request.method == 'GET':
+
+        user = request.user  # Get the authenticated user
+        # Get the user's account
+        account = Account.objects.get(user=user)
+        date_string = request.data.get('date')
+        date = datetime.strptime(date_string, "%Y-%m-%d")
+        month = date.month
+        year = date.year
+
+        try:
+            # get account balance
+            balance = account.current_balance
+
+            # filter transactions by date and account
+            transactions_for_account_by_date = Transaction.objects.filter(
+                account=account,
+                date__month=month,
+                date__year=year
+            ).order_by('date')
+
+            transaction_serializer = TransactionSerializer(
+                transactions_for_account_by_date, many=True)
+
+            data = {
+                'transactions': transaction_serializer.data,
+                'balance': balance
+            }
+            return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

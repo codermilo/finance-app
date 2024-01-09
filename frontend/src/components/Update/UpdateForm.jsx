@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import getChoices from "../../hooks/getChoices";
 import FormField from "../Form/FormField";
 import useUpdateTransaction from "../../hooks/useUpdateTransaction";
+import { parseISO } from "date-fns";
 
 const UpdateTransactionForm = ({
   fields,
@@ -31,8 +32,10 @@ const UpdateTransactionForm = ({
       case "recurring":
         acc[field] = false;
         break;
-      case "first_payment_date":
-        acc[field] = new Date();
+      case "date":
+        console.log("Update Data Date:", updateData.date);
+        acc[field] = updateData.date;
+        console.log(acc);
         break;
       case "category":
         acc[field] = "Utilities";
@@ -47,16 +50,16 @@ const UpdateTransactionForm = ({
 
   // Set initial state with the previous transaction data if it's an update form
   if (updateData != null) {
+    console.log(updateData);
+    // turning the date from string to date object
+    const parsedDate = parseISO(updateData.date);
     const data = updateData.transaction_meta_data_id;
     initialFieldStates = {
       category: data.category,
       description: data.description,
-      first_payment_date: new Date(data.first_payment_date),
-      final_payment_date: new Date(data.final_payment_date),
-      previous_payment_date: new Date(data.previous_payment_date),
+      date: parsedDate,
       recipient: data.recipient,
       recurring: data.recurring,
-      recurring_period: data.recurring_period,
       value: data.value,
     };
   }
@@ -96,8 +99,8 @@ const UpdateTransactionForm = ({
 
     const formattedFormData = { ...formData };
 
-    // console.log(formData);
-    // console.log(formattedFormData);
+    console.log(formData.date);
+    console.log(formattedFormData.date);
 
     // Convert date strings to Date objects
     Object.keys(formattedFormData).forEach((field) => {
@@ -111,6 +114,8 @@ const UpdateTransactionForm = ({
         formattedFormData[field] = null; // Set empty date values to null
       }
     });
+
+    console.log(formattedFormData.date);
 
     // Format Date objects to YYYY-MM-DD format
     Object.keys(formattedFormData).forEach((field) => {
