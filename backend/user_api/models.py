@@ -74,11 +74,12 @@ class Transaction(models.Model):
     date = models.DateField(default=datetime.now)
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name='transactions')
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    value = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     recurring = models.BooleanField(default=False)
     recipient = models.ForeignKey(
         Recipient, on_delete=models.CASCADE, null=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    description = models.CharField(max_length=100, null=True)
     # Transaction_type can only be "income" or "expense"
     TRANSACTION_CHOICES = [
         ('income', 'Income'),
@@ -92,4 +93,4 @@ class Transaction(models.Model):
     )
 
     def __str__(self):
-        return f"Transaction {self.transaction_id}: {self.transaction_meta_data_id.description}"
+        return f"Transaction {self.transaction_id}: {self.description}"
