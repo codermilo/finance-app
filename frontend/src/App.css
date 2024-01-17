@@ -42,6 +42,24 @@ span.input-group-addon {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  /* background-image: linear-gradient(55deg, #3321fb, #8514f5); */
+  /* background-image: url(./assets/meshgradient.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover; */
+  /* filter: blur(10px); */
+  background-color: #999eff;
+  background-image: radial-gradient(
+      at 53% 10%,
+      hsla(181, 71%, 71%, 1) 0px,
+      transparent 50%
+    ),
+    radial-gradient(at 68% 57%, hsla(318, 67%, 76%, 1) 0px, transparent 50%),
+    radial-gradient(at 93% 20%, hsla(262, 74%, 70%, 1) 0px, transparent 50%),
+    radial-gradient(at 74% 90%, hsla(239, 73%, 68%, 1) 0px, transparent 50%),
+    radial-gradient(at 54% 34%, hsla(231, 61%, 60%, 1) 0px, transparent 50%),
+    radial-gradient(at 56% 30%, hsla(233, 83%, 77%, 1) 0px, transparent 50%),
+    radial-gradient(at 43% 12%, hsla(314, 69%, 69%, 1) 0px, transparent 50%);
 }
 
 .main__container {
@@ -50,25 +68,24 @@ span.input-group-addon {
   justify-content: center;
   align-items: center;
   flex: 1;
-  margin: 4rem;
-  gap: 4rem;
+  /* gap: 4rem; */
+  /* background-color: #fff; */
+  width: 100%;
+  max-width: 1080px;
 }
 
 .panel {
   display: flex;
-  border: 2px solid red;
+  /* background-color: #fff; */
   width: 100%;
-  padding: 2rem;
+  padding: 2rem 0;
   gap: 4rem;
+  box-sizing: border-box;
+  border-radius: 1rem;
 }
 
 .data_portal__container {
   width: 50%;
   border: 2px solid green;
   text-wrap: wrap;
-}
-
-.create__account {
-  width: 50%;
-  border: 2px solid blue;
 }

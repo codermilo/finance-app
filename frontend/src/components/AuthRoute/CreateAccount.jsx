@@ -4,6 +4,8 @@ import CreateAccountForm from "../Form/CreateAccountForm";
 import { useAuth, useAuthDispatch } from "../../context/AuthContext";
 import UpdateAccountForm from "../Update/UpdateAccountForm";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleMinus, faUserGear } from "@fortawesome/free-solid-svg-icons";
 
 export default function CreateAccount({ fetchFunc }) {
   // Settings for Axios and Auth
@@ -44,7 +46,6 @@ export default function CreateAccount({ fetchFunc }) {
 
   return (
     <div className="create__account">
-      <h1>ACCOUNT</h1>
       {hasAccount && showUpdateForm ? (
         <div className="create_account__inner">
           <div className="update_account_form">
@@ -58,13 +59,16 @@ export default function CreateAccount({ fetchFunc }) {
         </div>
       ) : hasAccount ? (
         <div className="create_account__inner">
-          <h1>{`BANK NAME: ${hasAccount.bank_name}`}</h1>
-          <h1>{`BALANCE: £${hasAccount.current_balance}`}</h1>
-          <div className="button_group">
+          <h1 className="balance">{`£${hasAccount.current_balance}`}</h1>
+
+          <div className="account_name_button_group">
+            <h1 className="account_name">{`${hasAccount.bank_name}`}</h1>
             <button onClick={() => setShowUpdateform(true)}>
-              Update Account Name
+              <FontAwesomeIcon icon={faUserGear} />
             </button>
-            <button onClick={() => deleteAccount()}>Delete Account?</button>
+            <button onClick={() => deleteAccount()}>
+              <FontAwesomeIcon icon={faCircleMinus} />
+            </button>
           </div>
         </div>
       ) : (

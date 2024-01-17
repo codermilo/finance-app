@@ -526,10 +526,6 @@ def get_test_func(request):
             account.current_balance = 0
             account.save()
 
-            user = request.user  # Get the authenticated user
-            # Get the user's account
-            account = Account.objects.get(user=user)
-
             today = datetime.now().date()
             first_day_of_current_month = today.replace(day=1)
             last_day_of_last_month = first_day_of_current_month - \

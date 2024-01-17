@@ -49,7 +49,7 @@ export default function Navbar(props) {
   return (
     <div className="Navbar">
       <div className="logo">
-        <h1>Logo</h1>
+        <h1>Finance Tracker</h1>
       </div>
 
       {authStatus.isLoggedIn ? (

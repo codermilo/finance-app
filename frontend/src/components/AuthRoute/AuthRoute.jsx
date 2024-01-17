@@ -9,6 +9,7 @@ import CreateAccount from "./CreateAccount";
 import Footer from "../Footer/Footer";
 import { useAuth, useAuthDispatch } from "../../context/AuthContext";
 import axios from "axios";
+import "../../styles/AuthRoute.css";
 
 export default function AuthRoute() {
   // Store form fields in an array
@@ -129,11 +130,11 @@ export default function AuthRoute() {
     <div className="App">
       <Navbar loginRegFunc={loginReg} />
       <div className="main__container">
-        <div className="panel">
-          {/* Buttons to add expenses. Looks the same logged in or not */}
-          <TransactionButtonComponent handleClick={transactionChange} />
+        <div className="Auth_panel">
           {/* Either shows component to create account or shows account detail */}
           <CreateAccount fetchFunc={fetchTransactions} />
+          {/* Buttons to add expenses. Looks the same logged in or not */}
+          <TransactionButtonComponent handleClick={transactionChange} />
         </div>
         <div className="panel">
           {transactionOptions === "expense" ? (

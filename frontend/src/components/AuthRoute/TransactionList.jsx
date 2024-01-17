@@ -1,5 +1,5 @@
 import React from "react";
-import "../Transaction/Transaction.css";
+import "../../styles/Transaction.css";
 import useFetch from "../../hooks/useFetch";
 import Transaction from "../Transaction/Transaction";
 

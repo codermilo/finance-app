@@ -53,7 +53,7 @@ const UpdateTransactionForm = ({
     console.log(updateData);
     // turning the date from string to date object
     const parsedDate = parseISO(updateData.date);
-    const data = updateData.transaction_meta_data_id;
+    const data = updateData;
     initialFieldStates = {
       category: data.category,
       description: data.description,

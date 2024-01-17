@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import "./Transaction.css";
+import "../../styles/Transaction.css";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import useUpdateTransaction from "../../hooks/useUpdateTransaction";
 import UpdateTransactionForm from "../Update/UpdateForm";
+import formateDate from "../../hooks/FormatDate";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDeleteLeft, faRotate } from "@fortawesome/free-solid-svg-icons";
 
 export default function Transaction(props) {
   // get token for api call
@@ -12,9 +15,8 @@ export default function Transaction(props) {
 
   // get data from transaction
   const transaction = props.transaction;
-  const meta = transaction.transaction_meta_data_id;
   const id = transaction.transaction_id;
-  const pay = meta.transaction_type;
+  const pay = transaction.transaction_type;
   // console.log(transaction);
 
   // State to decide if update transaction form is shown
@@ -34,13 +36,14 @@ export default function Transaction(props) {
   const formFields = [
     "value",
     "recurring",
-    "recurring_period",
     "date",
     "recipient",
     "description",
     "category",
   ];
 
+  // Format incoming transaction date
+  const formattedDate = formateDate(transaction.date);
   // Importing delete function
   const { deleteFunc } = props;
 
@@ -52,15 +55,28 @@ export default function Transaction(props) {
         /* Show normal transaction details if not udpating */
         <div className="transaction__inner">
           <div className="transaction__data">
-            <p>{meta.recipient}</p>
-            {/* <p>{meta.description}</p> */}
-            <p>{meta.value}</p>
-            <p>{meta.category}</p>
-            <p>{meta.transaction_type}</p>
+            <div className="date_recipient">
+              <p>{formattedDate}</p>
+              <p>{transaction.recipient}</p>
+            </div>
+            {/* <p>{transaction.description}</p> */}
+            {transaction.transaction_type == "income" ? (
+              <p className="income">{`+${transaction.value}`}</p>
+            ) : (
+              <p className="expense">{`-${transaction.value}`}</p>
+            )}
+            <p>{transaction.category}</p>
           </div>
           <div className="transaction__buttons">
-            <button onClick={() => setUpdateForm(true)}>Update</button>
-            <button onClick={() => deleteFunc(id)}>Delete</button>
+            <button className="update_btn" onClick={() => setUpdateForm(true)}>
+              <FontAwesomeIcon className="update_btn_icon" icon={faRotate} />
+            </button>
+            <button className="delete_btn" onClick={() => deleteFunc(id)}>
+              <FontAwesomeIcon
+                className="delete_btn_icon"
+                icon={faDeleteLeft}
+              />
+            </button>
           </div>
         </div>
       ) : (
