@@ -29,23 +29,6 @@ export default function LoginInstance() {
             <p>Bank Name: {data.account.bank_name}</p>
           </div>
         )}
-        {/* {data.transactions && (
-          <div>
-            <h3>Transactions</h3>
-            <ul>
-              {data.transactions.map((transaction, index) => (
-                <li key={index}>
-                  <p>Transaction ID: {transaction.transaction_id}</p>
-                  <p>Value: {transaction.value}</p>
-                  <p>Recurring: {transaction.recurring ? "Yes" : "No"}</p>
-                  <p>Description: {transaction.description}</p>
-                  <p>Category: {transaction.category}</p>
-                  <p>Linked Account: {transaction.account}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )} */}
       </div>
     );
   } else {

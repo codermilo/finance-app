@@ -5,6 +5,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import getChoices from "../../hooks/getChoices";
 import FormField from "./FormField";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faDeleteLeft,
+  faRotate,
+  faClose,
+  faArrowLeftLong,
+} from "@fortawesome/free-solid-svg-icons";
 
 const CreateTransactionForm = ({
   fields,
@@ -19,8 +26,6 @@ const CreateTransactionForm = ({
 
   // Import getChoices hook
   const { data, loading, error } = getChoices();
-  // console.log(data.category_choices[0]);
-  // console.log(data.recipients[0].name);
 
   // Set initial state for form data
   let initialFieldStates = fields.reduce((acc, field) => {
@@ -50,11 +55,8 @@ const CreateTransactionForm = ({
       category: data.category,
       description: data.description,
       first_payment_date: data.first_payment_date,
-      // final_payment_date: data.final_payment_date,
-      // previous_payment_date: data.previous_payment_date,
       recipient: data.recipient,
       recurring: data.recurring,
-      // recurring_period: data.recurring_period,
       value: data.value,
     };
   }
@@ -94,9 +96,6 @@ const CreateTransactionForm = ({
 
     const formattedFormData = { ...formData };
 
-    // console.log(formData);
-    // console.log(formattedFormData);
-
     // Convert date strings to Date objects
     Object.keys(formattedFormData).forEach((field) => {
       if (
@@ -135,24 +134,19 @@ const CreateTransactionForm = ({
     }
   };
 
-  // Function to determine if a field should be shown based on 'recurring' value
-  // const shouldShowField = (fieldName) => {
-  //   if (fieldName === "recurring") {
-  //     return true; // Always show 'recurring' field
-  //   }
-  //   return (
-  //     formData.recurring ||
-  //     ![
-  //       "recurring_period",
-  //       // "first_payment_date",
-  //       "final_payment_date",
-  //       "previous_payment_date",
-  //     ].includes(fieldName)
-  //   );
-  // };
-
   return (
     <div className="form-container">
+      <div className="back_btn_container">
+        <button
+          className="close_button"
+          onClick={() => transactionChange(null)}
+        >
+          <FontAwesomeIcon
+            className="close_button_icon"
+            icon={faArrowLeftLong}
+          />
+        </button>
+      </div>
       <form onSubmit={submitTransCreation}>
         {/* Map over form fields */}
         {fields.map((field) => (

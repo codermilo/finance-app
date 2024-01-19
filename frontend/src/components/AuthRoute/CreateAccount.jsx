@@ -6,8 +6,9 @@ import UpdateAccountForm from "../Update/UpdateAccountForm";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleMinus, faUserGear } from "@fortawesome/free-solid-svg-icons";
+import Analytics from "./Analytics";
 
-export default function CreateAccount({ fetchFunc }) {
+export default function CreateAccount({ fetchFunc, data }) {
   // Settings for Axios and Auth
   const user = useAuth();
   const token = user?.token;
@@ -59,17 +60,20 @@ export default function CreateAccount({ fetchFunc }) {
         </div>
       ) : hasAccount ? (
         <div className="create_account__inner">
-          <h1 className="balance">{`£${hasAccount.current_balance}`}</h1>
+          <div className="ca_left">
+            <h1 className="balance">{`£${hasAccount.current_balance}`}</h1>
 
-          <div className="account_name_button_group">
-            <h1 className="account_name">{`${hasAccount.bank_name}`}</h1>
-            <button onClick={() => setShowUpdateform(true)}>
-              <FontAwesomeIcon icon={faUserGear} />
-            </button>
-            <button onClick={() => deleteAccount()}>
-              <FontAwesomeIcon icon={faCircleMinus} />
-            </button>
+            <div className="account_name_button_group">
+              <h1 className="account_name">{`${hasAccount.bank_name}`}</h1>
+              <button onClick={() => setShowUpdateform(true)}>
+                <FontAwesomeIcon icon={faUserGear} />
+              </button>
+              <button onClick={() => deleteAccount()}>
+                <FontAwesomeIcon icon={faCircleMinus} />
+              </button>
+            </div>
           </div>
+          <Analytics data={data} />
         </div>
       ) : (
         <CreateAccountForm

@@ -36,6 +36,7 @@ class Category(models.Model):
         ('Mortgage', 'Mortgage'),
         ('Luxury', 'Luxury'),
         ('Other', 'Other'),
+        ('Income', 'Income')
     ]
 
     category_id = models.AutoField(primary_key=True)

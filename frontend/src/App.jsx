@@ -3,15 +3,7 @@ import Footer from "./components/Footer/Footer";
 import Form from "./components/Form/Form";
 import "./App.css";
 import { useState } from "react";
-import LoginInstance from "./components/AuthRoute/LoginInstance";
 import { useAuth } from "./context/AuthContext";
-import CreateTransactionForm from "./components/Form/CreateTransactionForm";
-import CreateAccount from "./components/AuthRoute/CreateAccount";
-import TransactionList from "./components/AuthRoute/TransactionList";
-import DatePicker from "./components/DatePicker/DatePicker";
-import DatePickerComponent from "./components/DatePicker/DatePicker";
-import TransactionButtonComponent from "./components/AddTransactionsExpenses/AddTransactionsExpenses";
-import useFetch from "./hooks/useFetch";
 import AuthRoute from "./components/AuthRoute/AuthRoute";
 
 export default function App() {

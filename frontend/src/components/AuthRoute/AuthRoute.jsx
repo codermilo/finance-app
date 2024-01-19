@@ -4,22 +4,23 @@ import TransactionButtonComponent from "../AddTransactionsExpenses/AddTransactio
 import CreateTransactionForm from "../Form/CreateTransactionForm";
 import TransactionList from "./TransactionList";
 import { useState, useEffect } from "react";
-import useFetch from "../../hooks/useFetch";
 import CreateAccount from "./CreateAccount";
 import Footer from "../Footer/Footer";
 import { useAuth, useAuthDispatch } from "../../context/AuthContext";
 import axios from "axios";
 import "../../styles/AuthRoute.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faDeleteLeft,
+  faRotate,
+  faClose,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function AuthRoute() {
   // Store form fields in an array
   const formFields = [
     "value",
     "recurring",
-    // "recurring_period",
-    // "first_payment_date",
-    // "final_payment_date",
-    // "previous_payment_date",
     "date",
     "recipient",
     "description",
@@ -30,7 +31,6 @@ export default function AuthRoute() {
 
   // State to hold form data for updating a transaction?
   const [updateData, setUpdateData] = useState(null);
-  // console.log(updateData);
 
   // write function to toggle transactionOptions to send to transaction button component
   const transactionChange = (arg) => {
@@ -45,7 +45,6 @@ export default function AuthRoute() {
   // function to set update transaction data to pass to transaction form
   const updateTransaction = (data) => {
     setUpdateData(data);
-    // console.log(updateData);
   };
 
   // Moving my useFetch to App and passing loading, error and data to Transaction List
@@ -53,6 +52,7 @@ export default function AuthRoute() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  console.log(data);
 
   // Settings for Axios and Auth
   const user = useAuth();
@@ -81,6 +81,7 @@ export default function AuthRoute() {
           const accountData = res.data.account;
           console.log(`new request data is:`, res.data.transactions);
           setData(res.data);
+          console.log(res.data);
           setLoading(false);
           dispatch({
             type: "update account",
@@ -98,25 +99,25 @@ export default function AuthRoute() {
   // Fetch transactions on initial component mount
   useEffect(() => {
     fetchTransactions();
-  }, []); // Empty dependency array ensures this effect runs only once
+  }, []);
 
   // Moving delete function here so I can call fetchTransactions on delete and passing it all to transactions
   // Delete transaction function
   const deleteTransaction = async (id) => {
     const client = axios.create({
       baseURL: "http://127.0.0.1:8000",
-      withCredentials: true, // Automatically sends cookies with requests
-      xsrfCookieName: "csrftoken", // Name of the CSRF token cookie set by Django
-      xsrfHeaderName: "X-CSRFToken", // Header name to send the CSRF token
+      withCredentials: true,
+      xsrfCookieName: "csrftoken",
+      xsrfHeaderName: "X-CSRFToken",
       headers: {
-        "Content-Type": "application/json", // Set Content-Type explicitly
+        "Content-Type": "application/json",
         Authorization: `Token ${token}`,
       },
     });
 
     try {
       const transactionRes = await client.delete(`/api/delete_transaction`, {
-        data: { transaction_id: id }, // Data goes here
+        data: { transaction_id: id },
       });
       console.log(transactionRes);
       fetchTransactions();
@@ -132,14 +133,19 @@ export default function AuthRoute() {
       <div className="main__container">
         <div className="Auth_panel">
           {/* Either shows component to create account or shows account detail */}
-          <CreateAccount fetchFunc={fetchTransactions} />
+          <CreateAccount fetchFunc={fetchTransactions} data={data} />
           {/* Buttons to add expenses. Looks the same logged in or not */}
           <TransactionButtonComponent handleClick={transactionChange} />
         </div>
         <div className="panel">
           {transactionOptions === "expense" ? (
             <div className="create_transaction__container">
-              <button onClick={() => transactionChange(null)}>Close</button>
+              {/* <button
+                className="close_button"
+                onClick={() => transactionChange(null)}
+              >
+                <FontAwesomeIcon className="close_button_icon" icon={faClose} />
+              </button> */}
               <h1>ADD EXPENSE</h1>
               <CreateTransactionForm
                 fields={formFields}
@@ -148,11 +154,11 @@ export default function AuthRoute() {
                 updateData={updateData}
                 transactionChange={transactionChange}
                 fetchFunc={fetchTransactions}
+                closeFunc={transactionChange}
               />
             </div>
           ) : transactionOptions === "income" ? (
             <div className="create_transaction__container">
-              <button onClick={() => transactionChange(null)}>Close</button>
               <h1>ADD INCOME</h1>
               <CreateTransactionForm
                 fields={formFields}

@@ -65,7 +65,7 @@ span.input-group-addon {
 .main__container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex: 1;
   /* gap: 4rem; */
@@ -84,8 +84,27 @@ span.input-group-addon {
   border-radius: 1rem;
 }
 
-.data_portal__container {
-  width: 50%;
-  border: 2px solid green;
-  text-wrap: wrap;
+/* --- universal close button style --- */
+.close_button_container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close_button {
+  width: fit-content;
+  padding: 0.5rem;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.close_button_icon {
+  color: #c3c3c3;
+  font-size: 2rem;
+  transition: all 150ms ease;
+}
+
+.close_button :hover {
+  cursor: pointer;
+  color: black;
 }

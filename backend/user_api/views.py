@@ -30,7 +30,7 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 from django.db.models import Count
 from dateutil.relativedelta import relativedelta
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 
 # Endpoint for user logout, requires authentication
@@ -431,6 +431,96 @@ def get_user(request):
         serializer = UserSerializer(user)
         serialized_user = serializer.data
 
+        category_transactions = Transaction.objects.filter(
+            date__month=current_month,
+            date__year=current_year,
+            account=account
+        ).values('category__description').annotate(transaction_count=Count('category'))
+
+        # print(category_transactions)
+
+        for entry in category_transactions:
+            category_name = entry['category__description']
+            transaction_count = entry['transaction_count']
+            # Do something with the grouped data
+            # print(category_name)
+            # print(transaction_count)
+
+        # ------------- Code to work out sum of value of a specific 'category' ------------ #
+        # Replace 'Utilities' with the desired category name
+        specific_category = 'Fast Food'
+
+        category_transactions = Transaction.objects.filter(
+            date__month=current_month,
+            date__year=current_year,
+            account=account,
+            category__description=specific_category
+        ).values('category__description').annotate(total_value=Sum('value'))
+
+        # print(category_transactions)
+
+        for entry in category_transactions:
+            category_name = entry['category__description']
+            # Skip processing if the category is 'income'
+            if category_name == 'income':
+                continue
+            # Handle the case where there are no transactions
+            total_value = entry['total_value'] or 0
+            # Do something with the grouped data
+            # print(f"Category: {category_name}, Total Value: {total_value}")
+
+        # ---------- Code to work out sum of value of all 'categories' present in transaction instances
+        all_category_transactions = Transaction.objects.filter(
+            date__month=current_month,
+            date__year=current_year,
+            account=account
+        ).values('category__description').annotate(total_value=Sum('value'))
+
+        print(category_transactions)
+
+        for entry in all_category_transactions:
+            category_name = entry['category__description']
+            if category_name == 'income':
+                continue
+            # Handle the case where there are no transactions
+            total_value = entry['total_value'] or 0
+            # Do something with the grouped data
+            print(f"Category: {category_name}, Total Value: {total_value}")
+
+            # The result will be a queryset with dictionaries containing 'transaction_type' and 'transaction_count'
+
+        # Convert the queryset to a list
+        category_data_list = [
+            entry for entry in all_category_transactions if entry['category__description'] != 'Income'
+        ]
+
+        # ---------    Code to work out sum of value of all 'recipients' present in transaction instances
+
+        all_recipient_transactions = Transaction.objects.filter(
+            date__month=current_month,
+            date__year=current_year,
+            account=account
+        ).values('recipient__name').annotate(total_value=Sum('value'))
+
+        print(all_recipient_transactions)
+
+        for entry in all_recipient_transactions:
+            recipient_name = entry['recipient__name']
+            # Skip processing if the recipient is 'income'
+            if recipient_name == 'Income':
+                continue
+            # Handle the case where there are no transactions
+            total_value = entry['total_value'] or 0
+            # Do something with the grouped data
+            print(f"recipient: {recipient_name}, Total Value: {total_value}")
+
+            # The result will be a queryset with dictionaries containing 'transaction_type' and 'transaction_count'
+
+        # Convert the queryset to a list
+        recipient_data_list = [
+            entry for entry in all_recipient_transactions if entry['recipient__name'] != 'Income'
+        ]
+
         user_details = {
             'user_id': serialized_user['id'],
             'username': serialized_user['username'],
@@ -439,7 +529,9 @@ def get_user(request):
             'transactions': serialized_transactions,
             'current_month_transactions': current_month_transactions_serializer.data,
             'expense_total': expense_value,
-            'income_total': income_value
+            'income_total': income_value,
+            'category_data': category_data_list,
+            'recipient_data': recipient_data_list
         }
 
         return Response(user_details, status=status.HTTP_200_OK)

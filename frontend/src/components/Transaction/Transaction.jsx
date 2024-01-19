@@ -6,7 +6,12 @@ import useUpdateTransaction from "../../hooks/useUpdateTransaction";
 import UpdateTransactionForm from "../Update/UpdateForm";
 import formateDate from "../../hooks/FormatDate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDeleteLeft, faRotate } from "@fortawesome/free-solid-svg-icons";
+import {
+  faDeleteLeft,
+  faRotate,
+  faClose,
+  faArrowLeftLong,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Transaction(props) {
   // get token for api call
@@ -80,7 +85,7 @@ export default function Transaction(props) {
           </div>
         </div>
       ) : (
-        <div className="transaction__iner">
+        <div className="transaction__inner">
           <div className="transaction__data">
             <UpdateTransactionForm
               fields={formFields}
@@ -90,8 +95,13 @@ export default function Transaction(props) {
               fetchFunc={fetchFunc}
             />
           </div>
-          <div className="transaction__buttons">
-            <button onClick={() => setUpdateForm(false)}>Close</button>
+          <div className="close_button_container">
+            <button
+              className="close_button"
+              onClick={() => setUpdateForm(false)}
+            >
+              <FontAwesomeIcon className="close_button_icon" icon={faClose} />
+            </button>
           </div>
         </div>
       )}

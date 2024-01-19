@@ -38,42 +38,6 @@ export function AuthProvider({ children }) {
         savedCredentials = initialAuth;
       }
 
-      // if (!savedCredentials.auth) {
-      //   axios.defaults.xsrfCookieName = "csrftoken";
-      //   axios.defaults.xsrfHeaderName = "X-CSRFToken";
-      //   axios.defaults.withCredentials = true;
-
-      //   // LATER I NEED TO ENV THE URLS !!!
-      //   const client = axios.create({
-      //     baseURL: "http://127.0.0.1:8000",
-      //   });
-
-      //   try {
-      //     client
-      //       .get("/api/user")
-      //       .then((res) => {
-      //         // console.log(res.data.user);
-      //         dispatch({
-      //           type: "login",
-      //           isLoggedIn: true,
-      //           user: res.data.user,
-      //         });
-      //       })
-      //       .catch((error) => {
-      //         console.log(error);
-      //       });
-      //   } catch (error) {
-      //     console.error("Error fetching data:", error);
-      //     // Handle error if needed
-      //     dispatch({
-      //       type: "setError",
-      //       error: error,
-      //     });
-      //   }
-      // } else {
-      //   dispatch({ type: "initialize", auth: savedCredentials });
-      // }
-
       dispatch({ type: "initialize", auth: savedCredentials });
     };
 
