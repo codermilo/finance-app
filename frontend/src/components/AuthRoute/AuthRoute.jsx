@@ -79,13 +79,27 @@ export default function AuthRoute() {
         })
         .then((res) => {
           const accountData = res.data.account;
-          console.log(`new request data is:`, res.data.transactions);
+          const transactionData = res.data.current_month_transactions;
+
+          // Extract analytics data and put it in an object
+          const { expense_total, income_total, category_data, recipient_data } =
+            res.data;
+
+          const analyticsData = {
+            expense_total,
+            income_total,
+            category_data,
+            recipient_data,
+          };
+
           setData(res.data);
           console.log(res.data);
           setLoading(false);
           dispatch({
-            type: "update account",
+            type: "get user",
             account: accountData,
+            transactions: transactionData,
+            analytics: analyticsData,
           });
         })
         .catch((error) => {

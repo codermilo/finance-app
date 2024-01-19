@@ -14,6 +14,8 @@ export function AuthProvider({ children }) {
     email: null,
     token: null,
     account: null,
+    transactions: null,
+    analytics: null,
     error: null,
   };
 
@@ -114,6 +116,8 @@ function authReducer(state, action) {
         email: null,
         token: null,
         account: null,
+        transactions: null,
+        analytics: null,
         error: null,
       };
 
@@ -130,6 +134,13 @@ function authReducer(state, action) {
       return {
         ...state,
         account: action.account,
+      };
+    case "get user":
+      return {
+        ...state,
+        account: action.account,
+        transactions: action.transactions,
+        analytics: action.analytics,
       };
 
     case "setError":
