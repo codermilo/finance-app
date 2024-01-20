@@ -50,7 +50,7 @@ export default function CreateAccount() {
 
   return (
     <div className="create__account">
-      {hasAccount && showUpdateForm ? (
+      {user.account && showUpdateForm ? (
         <div className="create_account__inner">
           <div className="update_account_form">
             <UpdateAccountForm
@@ -60,7 +60,7 @@ export default function CreateAccount() {
           </div>
           <button onClick={() => setShowUpdateform(false)}>Close</button>
         </div>
-      ) : hasAccount ? (
+      ) : user.account ? (
         <div className="create_account__inner">
           <div className="ca_left">
             <h1 className="balance">{`£${user.account.current_balance}`}</h1>

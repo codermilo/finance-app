@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "../../styles/Form.css";
 import useCreateTransaction from "../../hooks/useCreateTransaction";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import getChoices from "../../hooks/getChoices";
 import FormField from "./FormField";
@@ -64,7 +63,6 @@ const CreateTransactionForm = ({
 
   // State to hold form data
   const [formData, setFormData] = useState({ ...initialFieldStates });
-  // console.log(formData);
 
   // Handle date changes for date pickers
   const handleDateChange = (date, fieldName) => {
@@ -125,9 +123,8 @@ const CreateTransactionForm = ({
         // Call createTransaction function from hook
         createTransaction(formattedFormData, pay, updateData); // Pass the entire formData object
         console.log("submitting");
-        setTimeout(fetchData(), 500);
-        // setTimeout(fetchFunc(), 500);
-        setTimeout(transactionChange(null), 500);
+        setTimeout(fetchData(), 800);
+        setTimeout(transactionChange(null), 1000);
 
         break;
       default:

@@ -17,6 +17,7 @@ const useFetch = () => {
   });
 
   const fetchData = async () => {
+    console.log("1");
     try {
       const res = await client.get("/api/get_user", {
         headers: {
@@ -36,6 +37,8 @@ const useFetch = () => {
         category_data,
         recipient_data,
       };
+
+      console.log("2");
 
       dispatch({
         type: "get user",

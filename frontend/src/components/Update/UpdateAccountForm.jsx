@@ -27,8 +27,8 @@ export default function UpdateAccountForm({ fields, showForm }) {
   const submitAccountChange = (e) => {
     e.preventDefault();
     updateAccount(formData);
-    setTimeout(fetchData(), 1000);
-    setTimeout(showForm(false), 500);
+    setTimeout(fetchData(), 500);
+    setTimeout(showForm(false), 600);
   };
 
   return (
