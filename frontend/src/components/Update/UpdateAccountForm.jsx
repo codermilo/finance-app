@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import useUpdateAccount from "../../hooks/useUpdateAccount";
+import useFetch from "../../hooks/useFetch";
 
-export default function UpdateAccountForm({ fields, fetchFunc, showForm }) {
+export default function UpdateAccountForm({ fields, showForm }) {
   const { updateAccount } = useUpdateAccount();
+  const { fetchData } = useFetch();
 
   // Handle incoming fields
   const initialFieldStates = fields.reduce((acc, field) => {
@@ -25,7 +27,7 @@ export default function UpdateAccountForm({ fields, fetchFunc, showForm }) {
   const submitAccountChange = (e) => {
     e.preventDefault();
     updateAccount(formData);
-    setTimeout(fetchFunc(), 500);
+    setTimeout(fetchData(), 1000);
     setTimeout(showForm(false), 500);
   };
 

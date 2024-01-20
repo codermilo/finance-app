@@ -7,8 +7,9 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleMinus, faUserGear } from "@fortawesome/free-solid-svg-icons";
 import Analytics from "./Analytics";
+import useFetch from "../../hooks/useFetch";
 
-export default function CreateAccount({ fetchFunc, data }) {
+export default function CreateAccount() {
   // Settings for Axios and Auth
   const user = useAuth();
   const token = user?.token;
@@ -18,6 +19,7 @@ export default function CreateAccount({ fetchFunc, data }) {
   axios.defaults.withCredentials = true;
 
   const hasAccount = user.account;
+  const { fetchData } = useFetch();
 
   // State to determine if component shows update form
   const [showUpdateForm, setShowUpdateform] = useState(false);
@@ -38,7 +40,8 @@ export default function CreateAccount({ fetchFunc, data }) {
     try {
       const res = await client.delete(`/api/delete_account`);
       console.log(res);
-      setTimeout(fetchFunc(), 500);
+      setTimeout(fetchData(), 500);
+      // setTimeout(fetchFunc(), 500);
     } catch (error) {
       console.error("Error during account deletion:", error);
       console.error("Response data:", error.response.data);
@@ -52,7 +55,6 @@ export default function CreateAccount({ fetchFunc, data }) {
           <div className="update_account_form">
             <UpdateAccountForm
               fields={["bank name"]}
-              fetchFunc={fetchFunc}
               showForm={setShowUpdateform}
             />
           </div>
@@ -61,10 +63,10 @@ export default function CreateAccount({ fetchFunc, data }) {
       ) : hasAccount ? (
         <div className="create_account__inner">
           <div className="ca_left">
-            <h1 className="balance">{`£${hasAccount.current_balance}`}</h1>
+            <h1 className="balance">{`£${user.account.current_balance}`}</h1>
 
             <div className="account_name_button_group">
-              <h1 className="account_name">{`${hasAccount.bank_name}`}</h1>
+              <h1 className="account_name">{`${user.account.bank_name}`}</h1>
               <button onClick={() => setShowUpdateform(true)}>
                 <FontAwesomeIcon icon={faUserGear} />
               </button>
@@ -73,13 +75,13 @@ export default function CreateAccount({ fetchFunc, data }) {
               </button>
             </div>
           </div>
-          <Analytics data={data} />
+          <Analytics />
         </div>
       ) : (
         <CreateAccountForm
           fields={["bank name"]}
           form="createAccount"
-          fetchFunc={fetchFunc}
+          showForm={setShowUpdateform}
         />
       )}
     </div>

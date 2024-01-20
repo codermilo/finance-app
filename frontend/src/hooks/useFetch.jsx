@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { useAuth, useAuthDispatch } from "../context/AuthContext";
 
@@ -12,46 +12,46 @@ const useFetch = () => {
   axios.defaults.xsrfHeaderName = "X-CSRFToken";
   axios.defaults.withCredentials = true;
 
-  // LATER I NEED TO ENV THE URLS !!!
   const client = axios.create({
     baseURL: "http://127.0.0.1:8000",
   });
 
-  // const API_TOKEN = import.meta.env.VITE_API_TOKEN;
-  // const API_URL = import.meta.env.VITE_API_URL;
-  // const UPLOAD_URL = import.meta.env.VITE_UPLOAD_URL;
-
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  // console.log(data);
-  // console.log(client);
-
-  useEffect(() => {
-    setLoading(true);
-    client
-      .get("/api/get_user", {
+  const fetchData = async () => {
+    try {
+      const res = await client.get("/api/get_user", {
         headers: {
           Authorization: `Token ${token}`,
         },
-      })
-      .then((res) => {
-        const accountData = res.data.account;
-        setData(res.data);
-        setLoading(false);
-        dispatch({
-          type: "update account",
-          account: accountData,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-        setError(true);
-        setLoading(false);
       });
-  }, []);
 
-  return { data, loading, error }; // Returning data, loading, and error states
+      const accountData = res.data.account;
+      const transactionData = res.data.current_month_transactions;
+
+      const { expense_total, income_total, category_data, recipient_data } =
+        res.data;
+
+      const analyticsData = {
+        expense_total,
+        income_total,
+        category_data,
+        recipient_data,
+      };
+
+      dispatch({
+        type: "get user",
+        account: accountData,
+        transactions: transactionData,
+        analytics: analyticsData,
+      });
+    } catch (error) {
+      console.error(error);
+      // Handle the error as needed, e.g., you can dispatch an error action
+    }
+  };
+
+  return { fetchData };
+
+  // You're not returning anything from this hook
 };
 
 export default useFetch;

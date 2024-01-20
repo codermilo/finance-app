@@ -12,12 +12,12 @@ import {
   faClose,
   faArrowLeftLong,
 } from "@fortawesome/free-solid-svg-icons";
+import useFetch from "../../hooks/useFetch";
 
 export default function Transaction(props) {
   // get token for api call
   const user = useAuth();
   const token = user?.token;
-
   // get data from transaction
   const transaction = props.transaction;
   const id = transaction.transaction_id;
@@ -51,8 +51,6 @@ export default function Transaction(props) {
   const formattedDate = formateDate(transaction.date);
   // Importing delete function
   const { deleteFunc } = props;
-
-  const { fetchFunc } = props;
 
   return (
     <div className="transaction__collection">
@@ -92,7 +90,6 @@ export default function Transaction(props) {
               form="createTransaction"
               pay={pay}
               updateData={transaction}
-              fetchFunc={fetchFunc}
             />
           </div>
           <div className="close_button_container">

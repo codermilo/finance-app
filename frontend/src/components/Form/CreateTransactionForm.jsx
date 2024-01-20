@@ -12,6 +12,7 @@ import {
   faClose,
   faArrowLeftLong,
 } from "@fortawesome/free-solid-svg-icons";
+import useFetch from "../../hooks/useFetch";
 
 const CreateTransactionForm = ({
   fields,
@@ -19,10 +20,10 @@ const CreateTransactionForm = ({
   pay,
   updateData,
   transactionChange,
-  fetchFunc,
 }) => {
   // Import useCreateTransaction hook
   const { createTransaction } = useCreateTransaction();
+  const { fetchData } = useFetch();
 
   // Import getChoices hook
   const { data, loading, error } = getChoices();
@@ -124,7 +125,8 @@ const CreateTransactionForm = ({
         // Call createTransaction function from hook
         createTransaction(formattedFormData, pay, updateData); // Pass the entire formData object
         console.log("submitting");
-        setTimeout(fetchFunc(), 500);
+        setTimeout(fetchData(), 500);
+        // setTimeout(fetchFunc(), 500);
         setTimeout(transactionChange(null), 500);
 
         break;

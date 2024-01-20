@@ -9,12 +9,7 @@ import Footer from "../Footer/Footer";
 import { useAuth, useAuthDispatch } from "../../context/AuthContext";
 import axios from "axios";
 import "../../styles/AuthRoute.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faDeleteLeft,
-  faRotate,
-  faClose,
-} from "@fortawesome/free-solid-svg-icons";
+import useFetch from "../../hooks/useFetch";
 
 export default function AuthRoute() {
   // Store form fields in an array
@@ -47,72 +42,17 @@ export default function AuthRoute() {
     setUpdateData(data);
   };
 
-  // Moving my useFetch to App and passing loading, error and data to Transaction List
-  // Setting states for Data Loading and Error
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  console.log(data);
-
   // Settings for Axios and Auth
   const user = useAuth();
   const token = user?.token;
-  const dispatch = useAuthDispatch();
-  axios.defaults.xsrfCookieName = "csrftoken";
-  axios.defaults.xsrfHeaderName = "X-CSRFToken";
-  axios.defaults.withCredentials = true;
 
-  // LATER I NEED TO ENV THE URLS !!!
-  const client = axios.create({
-    baseURL: "http://127.0.0.1:8000",
-  });
-
-  // Making my fetch an async function that can be called in other functions rather than a hook
-  const fetchTransactions = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      client
-        .get("/api/get_user", {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        })
-        .then((res) => {
-          const accountData = res.data.account;
-          const transactionData = res.data.current_month_transactions;
-
-          // Extract analytics data and put it in an object
-          const { expense_total, income_total, category_data, recipient_data } =
-            res.data;
-
-          const analyticsData = {
-            expense_total,
-            income_total,
-            category_data,
-            recipient_data,
-          };
-
-          setData(res.data);
-          console.log(res.data);
-          setLoading(false);
-          dispatch({
-            type: "get user",
-            account: accountData,
-            transactions: transactionData,
-            analytics: analyticsData,
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          setError(true);
-          setLoading(false);
-        });
-    }, 100);
-  };
+  // Testing useFetch again
+  console.log(user);
+  const { fetchData } = useFetch();
 
   // Fetch transactions on initial component mount
   useEffect(() => {
-    fetchTransactions();
+    fetchData();
   }, []);
 
   // Moving delete function here so I can call fetchTransactions on delete and passing it all to transactions
@@ -134,7 +74,7 @@ export default function AuthRoute() {
         data: { transaction_id: id },
       });
       console.log(transactionRes);
-      fetchTransactions();
+      fetchData();
     } catch (error) {
       console.error("Error during transaction deletion:", error);
       console.error("Response data:", error.response.data);
@@ -147,19 +87,13 @@ export default function AuthRoute() {
       <div className="main__container">
         <div className="Auth_panel">
           {/* Either shows component to create account or shows account detail */}
-          <CreateAccount fetchFunc={fetchTransactions} data={data} />
+          <CreateAccount />
           {/* Buttons to add expenses. Looks the same logged in or not */}
           <TransactionButtonComponent handleClick={transactionChange} />
         </div>
         <div className="panel">
           {transactionOptions === "expense" ? (
             <div className="create_transaction__container">
-              {/* <button
-                className="close_button"
-                onClick={() => transactionChange(null)}
-              >
-                <FontAwesomeIcon className="close_button_icon" icon={faClose} />
-              </button> */}
               <h1>ADD EXPENSE</h1>
               <CreateTransactionForm
                 fields={formFields}
@@ -167,7 +101,6 @@ export default function AuthRoute() {
                 pay="expense"
                 updateData={updateData}
                 transactionChange={transactionChange}
-                fetchFunc={fetchTransactions}
                 closeFunc={transactionChange}
               />
             </div>
@@ -180,7 +113,6 @@ export default function AuthRoute() {
                 pay="income"
                 updateData={updateData}
                 transactionChange={transactionChange}
-                fetchFunc={fetchTransactions}
               />
             </div>
           ) : (
@@ -189,11 +121,7 @@ export default function AuthRoute() {
               <TransactionList
                 updateFunc={updateTransaction}
                 setFormFunc={transactionChange}
-                data={data}
-                loading={loading}
-                error={error}
                 deleteFunc={deleteTransaction}
-                fetchFunc={fetchTransactions}
               />
             </div>
           )}

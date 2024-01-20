@@ -7,17 +7,13 @@ import getChoices from "../../hooks/getChoices";
 import FormField from "../Form/FormField";
 import useUpdateTransaction from "../../hooks/useUpdateTransaction";
 import { parseISO } from "date-fns";
+import useFetch from "../../hooks/useFetch";
 
-const UpdateTransactionForm = ({
-  fields,
-  form,
-  pay,
-  updateData,
-  fetchFunc,
-}) => {
+const UpdateTransactionForm = ({ fields, form, pay, updateData }) => {
   // Import useUpdateTransaction hook
 
   const { updateTransaction } = useUpdateTransaction();
+  const { fetchData } = useFetch();
 
   // Need to get the old transaction data
   const oldTransactionId = updateData.transaction_id;
@@ -132,7 +128,7 @@ const UpdateTransactionForm = ({
         console.log(formattedFormData);
         // Call updateTransaction function from hook
         updateTransaction(formattedFormData, pay, oldTransactionId); // Pass the entire formData object
-        setTimeout(fetchFunc(), 500);
+        setTimeout(fetchData(), 500);
         break;
       default:
         console.log("error, form submit not working");

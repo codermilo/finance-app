@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import "../../styles/Form.css";
 import { useAuth } from "../../context/AuthContext";
 import useCreateAccount from "../../hooks/useCreateAccount";
+import useFetch from "../../hooks/useFetch";
 
-const CreateAccountForm = ({ fields, form, fetchFunc }) => {
+const CreateAccountForm = ({ fields, form, showForm }) => {
   const user = useAuth();
 
   // Import useCreateTransaction hook
   const { createAccount } = useCreateAccount();
+  const { fetchData } = useFetch();
 
   // Set initial state for form data
   const initialFieldStates = fields.reduce((acc, field) => {
@@ -43,7 +45,11 @@ const CreateAccountForm = ({ fields, form, fetchFunc }) => {
         // const balance = formData["current balance"];
 
         createAccount(bank);
-        setTimeout(fetchFunc(), 500);
+        setTimeout(() => {
+          fetchData();
+          // Assuming showForm is passed as a prop and destructured
+        }, 500);
+        showForm(false);
         break;
       default:
         console.log("error, form submit not working");

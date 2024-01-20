@@ -1,10 +1,15 @@
 import "../../App.css";
+import { useAuth } from "../../context/AuthContext";
 
-export default function Analytics(data) {
-  let content = data?.data ?? null;
-  let recipientArray = data?.data?.recipient_data ?? null;
-  let categoryArray = data?.data?.category_data ?? null;
-  console.log(categoryArray);
+export default function Analytics() {
+  // importing data from auth state
+  const user = useAuth();
+  let recipientArray = user.analytics.recipient_data ?? null;
+  let categoryArray = user.analytics.category_data ?? null;
+
+  let content = user.analytics ?? null;
+  // let recipientArray = data?.data?.recipient_data ?? null;
+  // let categoryArray = data?.data?.category_data ?? null;
   return (
     <div className="ca_right">
       <h1>Analytics</h1>
