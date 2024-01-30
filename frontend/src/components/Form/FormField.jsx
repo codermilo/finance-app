@@ -1,6 +1,7 @@
 import React from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "../../styles/Form.css";
 
 const FormField = ({
   field,
@@ -9,16 +10,25 @@ const FormField = ({
   handleDateChange,
   handleChangeCheckbox,
   data,
+  pay,
 }) => {
+  console.log(pay);
   switch (field) {
     case "recurring":
       return (
-        <input
-          type="checkbox"
-          checked={formData[field]}
-          onChange={(e) => handleChangeCheckbox(e, field)}
-          className="checkbox"
-        />
+        // <input
+        //   type="checkbox"
+        //   id="check"
+        //   checked={formData[field]}
+        //   onChange={(e) => handleChangeCheckbox(e, field)}
+        //   className="toggle"
+        // />
+        <div
+          className={`slider ${formData[field] ? "true" : "false"}`}
+          onClick={(e) => handleChangeCheckbox(e, field)}
+        >
+          <div className="dot"></div>
+        </div>
       );
     case "recipient":
       return (

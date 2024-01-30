@@ -26,7 +26,7 @@ export default function UpdateAccountForm({ fields, fetchFunc, showForm }) {
     e.preventDefault();
     updateAccount(formData);
     setTimeout(fetchFunc(), 500);
-    setTimeout(showForm(false), 500);
+    setTimeout(showForm(null), 500);
   };
 
   return (

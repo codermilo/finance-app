@@ -1,6 +1,8 @@
 import { useAuth, useAuthDispatch } from "../../context/AuthContext";
 import "../../styles/Navbar.css";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar(props) {
   axios.defaults.xsrfCookieName = "csrftoken";
@@ -17,6 +19,7 @@ export default function Navbar(props) {
   // importing auth status from context
   const authStatus = useAuth();
   const token = authStatus.token;
+  const user = authStatus.username;
 
   // importing dispatch so I can send them to my authcontext
   const dispatch = useAuthDispatch();
@@ -49,13 +52,21 @@ export default function Navbar(props) {
   return (
     <div className="Navbar">
       <div className="logo">
-        <h1>Finance Tracker</h1>
+        {/* <h1>Finance Tracker</h1> */}
+        <h1>
+          Welcome, <span>{user}!</span>
+        </h1>
       </div>
 
       {authStatus.isLoggedIn ? (
         <div className="login__buttons">
           <div className="navbar__btn">
-            <button onClick={logoutDispatch}>Logout</button>
+            <button onClick={logoutDispatch}>
+              <FontAwesomeIcon
+                className="logout_icon"
+                icon={faArrowRightFromBracket}
+              />
+            </button>
           </div>
         </div>
       ) : (

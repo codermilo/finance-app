@@ -1,10 +1,54 @@
 body {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  /* font-family: "Poppins", sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+  /* background-color: #999eff;
+  background-image: radial-gradient(
+      at 53% 10%,
+      hsla(181, 71%, 71%, 1) 0px,
+      transparent 50%
+    ),
+    radial-gradient(at 68% 57%, hsla(318, 67%, 76%, 1) 0px, transparent 50%),
+    radial-gradient(at 93% 20%, hsla(262, 74%, 70%, 1) 0px, transparent 50%),
+    radial-gradient(at 74% 90%, hsla(239, 73%, 68%, 1) 0px, transparent 50%),
+    radial-gradient(at 54% 34%, hsla(231, 61%, 60%, 1) 0px, transparent 50%),
+    radial-gradient(at 56% 30%, hsla(233, 83%, 77%, 1) 0px, transparent 50%),
+    radial-gradient(at 43% 12%, hsla(314, 69%, 69%, 1) 0px, transparent 50%); */
+  background-color: #bdbcba;
+  color: #121212;
 }
 
-h1 {
-  font-family: "Roboto", sans-serif;
+#root {
+  background-color: #dad8d4;
+  height: 641px;
+}
+
+.secondary_color {
+  color: #91908d;
+}
+
+/* h1 {
+  font-family: "Poppins", sans-serif;
+} */
+
+/* --- mobile styles --- */
+@media (max-width: 1080px) {
+  #root {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 }

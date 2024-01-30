@@ -10,11 +10,12 @@ import { useAuth, useAuthDispatch } from "../../context/AuthContext";
 import axios from "axios";
 import "../../styles/AuthRoute.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faDeleteLeft,
-  faRotate,
-  faClose,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeftLong } from "@fortawesome/free-solid-svg-icons";
+import Analytics from "./Analytics";
+import UpdateAccountForm from "../Update/UpdateAccountForm";
+import SettingsPage from "../Settings/SettingsPage";
+import UpdateTransactionForm from "../Update/UpdateForm";
+import BottomNav from "./BottomNAv";
 
 export default function AuthRoute() {
   // Store form fields in an array
@@ -27,7 +28,7 @@ export default function AuthRoute() {
     "category",
   ];
   // decide on whether to show add expense or income form
-  const [transactionOptions, setTransactionOptions] = useState(null);
+  const [transactionOptions, setTransactionOptions] = useState("transactions");
 
   // State to hold form data for updating a transaction?
   const [updateData, setUpdateData] = useState(null);
@@ -52,7 +53,6 @@ export default function AuthRoute() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  console.log(data);
 
   // Settings for Axios and Auth
   const user = useAuth();
@@ -79,9 +79,7 @@ export default function AuthRoute() {
         })
         .then((res) => {
           const accountData = res.data.account;
-          console.log(`new request data is:`, res.data.transactions);
           setData(res.data);
-          console.log(res.data);
           setLoading(false);
           dispatch({
             type: "update account",
@@ -127,64 +125,118 @@ export default function AuthRoute() {
     }
   };
 
+  const hasAccount = user.account;
+
   return (
     <div className="App">
-      <Navbar loginRegFunc={loginReg} />
-      <div className="main__container">
-        <div className="Auth_panel">
-          {/* Either shows component to create account or shows account detail */}
-          <CreateAccount fetchFunc={fetchTransactions} data={data} />
-          {/* Buttons to add expenses. Looks the same logged in or not */}
-          <TransactionButtonComponent handleClick={transactionChange} />
-        </div>
-        <div className="panel">
-          {transactionOptions === "expense" ? (
-            <div className="create_transaction__container">
-              {/* <button
-                className="close_button"
-                onClick={() => transactionChange(null)}
-              >
-                <FontAwesomeIcon className="close_button_icon" icon={faClose} />
-              </button> */}
-              <h1>ADD EXPENSE</h1>
-              <CreateTransactionForm
-                fields={formFields}
-                form="createTransaction"
-                pay="expense"
-                updateData={updateData}
-                transactionChange={transactionChange}
-                fetchFunc={fetchTransactions}
-                closeFunc={transactionChange}
+      <div className="Auth_panel">
+        {hasAccount ? (
+          <div className="panel">
+            {transactionOptions === "expense" ? (
+              <div className="create_transaction__container">
+                <h1>ADD EXPENSE</h1>
+                <CreateTransactionForm
+                  fields={formFields}
+                  form="createTransaction"
+                  pay="expense"
+                  updateData={updateData}
+                  transactionChange={transactionChange}
+                  fetchFunc={fetchTransactions}
+                  closeFunc={transactionChange}
+                />
+              </div>
+            ) : transactionOptions === "income" ? (
+              <div className="create_transaction__container">
+                <h1>ADD INCOME</h1>
+                <CreateTransactionForm
+                  fields={formFields}
+                  form="createTransaction"
+                  pay="income"
+                  updateData={updateData}
+                  transactionChange={transactionChange}
+                  fetchFunc={fetchTransactions}
+                />
+              </div>
+            ) : transactionOptions === "analytics" ? (
+              <div className="panel">
+                <Navbar loginRegFunc={loginReg} />
+                <Analytics data={data} />
+                <div className="bottom_navbar">
+                  <BottomNav
+                    transactionChange={setTransactionOptions}
+                    isActive={transactionOptions}
+                  />
+                </div>
+              </div>
+            ) : transactionOptions === "updateForm" ? (
+              <div className="update_account_form">
+                <h1>Update Account Name</h1>
+                <UpdateAccountForm
+                  fields={["bank name"]}
+                  fetchFunc={fetchTransactions}
+                  showForm={setTransactionOptions}
+                />
+              </div>
+            ) : transactionOptions === "transactionUpdateForm" ? (
+              <div className="panel">
+                <button
+                  className="back_btn"
+                  onClick={() => setTransactionOptions("transactions")}
+                >
+                  <FontAwesomeIcon icon={faArrowLeftLong} />
+                </button>
+                <div className="update_form">
+                  <h1>Update Transaction</h1>
+                  <UpdateTransactionForm
+                    fields={formFields}
+                    form="createTransaction"
+                    pay={updateData.transaction_type}
+                    updateData={updateData}
+                    fetchFunc={fetchTransactions}
+                    transactionChange={transactionChange}
+                  />
+                </div>
+              </div>
+            ) : transactionOptions === "settings" ? (
+              <SettingsPage
+                fields={["bank name"]}
+                fetchTransactions={fetchTransactions}
+                showForm={setTransactionOptions}
               />
-            </div>
-          ) : transactionOptions === "income" ? (
-            <div className="create_transaction__container">
-              <h1>ADD INCOME</h1>
-              <CreateTransactionForm
-                fields={formFields}
-                form="createTransaction"
-                pay="income"
-                updateData={updateData}
-                transactionChange={transactionChange}
-                fetchFunc={fetchTransactions}
-              />
-            </div>
-          ) : (
-            <div className="transactions">
-              <h1>TRANSACTIONS</h1>
-              <TransactionList
-                updateFunc={updateTransaction}
-                setFormFunc={transactionChange}
-                data={data}
-                loading={loading}
-                error={error}
-                deleteFunc={deleteTransaction}
-                fetchFunc={fetchTransactions}
-              />
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="panel">
+                <Navbar loginRegFunc={loginReg} />
+                <CreateAccount fetchFunc={fetchTransactions} data={data} />
+                <div className="transactions">
+                  <p className="header">Transaction history</p>
+                  <TransactionList
+                    updateFunc={updateTransaction}
+                    setFormFunc={transactionChange}
+                    data={data}
+                    loading={loading}
+                    error={error}
+                    deleteFunc={deleteTransaction}
+                    fetchFunc={fetchTransactions}
+                    showForm={setTransactionOptions}
+                  />
+                </div>
+                <div className="bottom_navbar">
+                  <BottomNav
+                    transactionChange={setTransactionOptions}
+                    isActive={transactionOptions}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="panel">
+            <Navbar loginRegFunc={loginReg} />
+            <CreateAccount fetchFunc={fetchTransactions} data={data} />
+          </div>
+        )}
       </div>
+
       <Footer />
     </div>
   );

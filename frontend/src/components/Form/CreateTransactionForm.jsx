@@ -17,7 +17,6 @@ const CreateTransactionForm = ({
   fields,
   form,
   pay,
-  updateData,
   transactionChange,
   fetchFunc,
 }) => {
@@ -48,19 +47,6 @@ const CreateTransactionForm = ({
     return acc;
   }, {});
 
-  // Set initial state with the previous transaction data if it's an update form
-  if (updateData != null) {
-    const data = updateData.transaction_meta_data_id;
-    initialFieldStates = {
-      category: data.category,
-      description: data.description,
-      first_payment_date: data.first_payment_date,
-      recipient: data.recipient,
-      recurring: data.recurring,
-      value: data.value,
-    };
-  }
-
   // State to hold form data
   const [formData, setFormData] = useState({ ...initialFieldStates });
   // console.log(formData);
@@ -84,10 +70,10 @@ const CreateTransactionForm = ({
   // Handle changes in checkbox input fields
   const handleChangeCheckbox = (e, fieldName) => {
     const isChecked = e.target.checked;
-    setFormData({
-      ...formData,
-      [fieldName]: isChecked, // Update the state with a boolean value
-    });
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: !prevFormData[fieldName],
+    }));
   };
 
   // Handle form submission
@@ -122,7 +108,7 @@ const CreateTransactionForm = ({
     switch (form) {
       case "createTransaction":
         // Call createTransaction function from hook
-        createTransaction(formattedFormData, pay, updateData); // Pass the entire formData object
+        createTransaction(formattedFormData, pay); // Pass the entire formData object
         console.log("submitting");
         setTimeout(fetchFunc(), 500);
         setTimeout(transactionChange(null), 500);
@@ -134,12 +120,15 @@ const CreateTransactionForm = ({
     }
   };
 
+  // Logic to hide recipient and category if pay == income
+  const isIncome = pay === "income";
+
   return (
     <div className="form-container">
       <div className="back_btn_container">
         <button
           className="close_button"
-          onClick={() => transactionChange(null)}
+          onClick={() => transactionChange("transactions")}
         >
           <FontAwesomeIcon
             className="close_button_icon"
@@ -149,18 +138,23 @@ const CreateTransactionForm = ({
       </div>
       <form onSubmit={submitTransCreation}>
         {/* Map over form fields */}
-        {fields.map((field) => (
-          <div key={field} className="form-group">
-            <label className="label">{field}</label>
-            <FormField
-              field={field}
-              formData={formData}
-              handleChange={handleChange}
-              handleDateChange={handleDateChange}
-              handleChangeCheckbox={handleChangeCheckbox}
-              data={data}
-              key={field}
-            />
+        {fields.map((field, index) => (
+          <div key={index} className="form-group">
+            {(field === "recipient" || field === "category") &&
+            isIncome ? null : (
+              <>
+                <label className="label">{field}</label>
+                <FormField
+                  field={field}
+                  formData={formData}
+                  handleChange={handleChange}
+                  handleDateChange={handleDateChange}
+                  handleChangeCheckbox={handleChangeCheckbox}
+                  data={data}
+                  key={index}
+                />
+              </>
+            )}
           </div>
         ))}
 

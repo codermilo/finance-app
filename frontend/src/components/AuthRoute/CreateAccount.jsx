@@ -22,58 +22,61 @@ export default function CreateAccount({ fetchFunc, data }) {
   // State to determine if component shows update form
   const [showUpdateForm, setShowUpdateform] = useState(false);
 
-  // Delete account function
-  const deleteAccount = async (id) => {
-    const client = axios.create({
-      baseURL: "http://127.0.0.1:8000",
-      withCredentials: true, // Automatically sends cookies with requests
-      xsrfCookieName: "csrftoken", // Name of the CSRF token cookie set by Django
-      xsrfHeaderName: "X-CSRFToken", // Header name to send the CSRF token
-      headers: {
-        "Content-Type": "application/json", // Set Content-Type explicitly
-        Authorization: `Token ${token}`,
-      },
-    });
+  // // Delete account function
+  // const deleteAccount = async (id) => {
+  //   const client = axios.create({
+  //     baseURL: "http://127.0.0.1:8000",
+  //     withCredentials: true, // Automatically sends cookies with requests
+  //     xsrfCookieName: "csrftoken", // Name of the CSRF token cookie set by Django
+  //     xsrfHeaderName: "X-CSRFToken", // Header name to send the CSRF token
+  //     headers: {
+  //       "Content-Type": "application/json", // Set Content-Type explicitly
+  //       Authorization: `Token ${token}`,
+  //     },
+  //   });
 
-    try {
-      const res = await client.delete(`/api/delete_account`);
-      console.log(res);
-      setTimeout(fetchFunc(), 500);
-    } catch (error) {
-      console.error("Error during account deletion:", error);
-      console.error("Response data:", error.response.data);
-    }
-  };
+  //   try {
+  //     const res = await client.delete(`/api/delete_account`);
+  //     console.log(res);
+  //     setTimeout(fetchFunc(), 500);
+  //   } catch (error) {
+  //     console.error("Error during account deletion:", error);
+  //     console.error("Response data:", error.response.data);
+  //   }
+  // };
 
   return (
     <div className="create__account">
       {hasAccount && showUpdateForm ? (
         <div className="create_account__inner">
-          <div className="update_account_form">
+          {/* <div className="update_account_form">
             <UpdateAccountForm
               fields={["bank name"]}
               fetchFunc={fetchFunc}
               showForm={setShowUpdateform}
             />
-          </div>
+          </div> */}
           <button onClick={() => setShowUpdateform(false)}>Close</button>
         </div>
       ) : hasAccount ? (
         <div className="create_account__inner">
           <div className="ca_left">
-            <h1 className="balance">{`£${hasAccount.current_balance}`}</h1>
+            <h1 className="balance secondary_color">
+              <span>{`£ ${hasAccount.current_balance}`}</span> Balance
+            </h1>
 
-            <div className="account_name_button_group">
-              <h1 className="account_name">{`${hasAccount.bank_name}`}</h1>
-              <button onClick={() => setShowUpdateform(true)}>
-                <FontAwesomeIcon icon={faUserGear} />
-              </button>
-              <button onClick={() => deleteAccount()}>
-                <FontAwesomeIcon icon={faCircleMinus} />
-              </button>
+            <div className="ca_analytics">
+              <div className="total_in">
+                <h1 className="balance ">Income</h1>
+                <span>{`+ £${data?.income_total}`}</span>
+              </div>
+              <div className="total_out">
+                <h1 className="balance ">Outgoing</h1>
+                <span>{`- £${data?.expense_total}`}</span>
+              </div>
             </div>
           </div>
-          <Analytics data={data} />
+          {/* <Analytics data={data} /> */}
         </div>
       ) : (
         <CreateAccountForm

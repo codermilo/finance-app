@@ -11,10 +11,12 @@ const useUpdateTransaction = () => {
 
     // Adding transaction_type = "income/expense" to request
     transactionData["transaction_type"] = pay;
-    // if (pay === "expense") {
-    //   transactionData.value = `-${transactionData.value}`;
-    //   console.log(transactionData.value);
-    // }
+    if (pay === "income") {
+      transactionData.recipient = `Income`;
+      transactionData.category = `Income`;
+      console.log(transactionData.recipient);
+      console.log(transactionData.expense);
+    }
     try {
       const client = axios.create({
         baseURL: "http://127.0.0.1:8000",

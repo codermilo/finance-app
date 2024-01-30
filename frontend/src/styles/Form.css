@@ -4,11 +4,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 300px;
-  margin: 0 auto;
-  background-color: #ffffff;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 2rem 0;
+  /* background-color: #ffffff; */
   border-radius: 1rem;
-  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .form-group {
@@ -25,10 +26,17 @@
 .input {
   width: 100%;
   padding: 8px;
-  font-size: 16px;
-  border-radius: 4px;
+  font-size: 14px;
+  border-radius: 10px;
   border: 1px solid #ccc;
   box-sizing: border-box;
+  color: #91908d;
+  background-color: #fff;
+}
+
+select {
+  background-color: #fff;
+  color: #91908d;
 }
 
 .button {
@@ -36,9 +44,56 @@
   font-size: 16px;
   border-radius: 4px;
   border: none;
-  background-color: #007bff;
+  background-color: #e63c3a;
   color: #fff;
   cursor: pointer;
+}
+
+/* --- Checkbox CSS --- */
+/* input[type="checkbox"].toggle {
+  opacity: 0.5;
+}
+
+input[type="checkbox"].toggle:checked + label {
+  color: red;
+} */
+
+.slider {
+  width: 60px;
+  height: 1.75rem;
+  background-color: #e63c3a;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  /* padding: 0.15rem; */
+  border-radius: 1.75rem;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.dot {
+  height: 1.5rem;
+  width: 1.5rem;
+  border-radius: 1.5rem;
+  background-color: #fff;
+  transition: all 150ms ease;
+  margin: 0.15rem;
+  margin-right: auto;
+}
+
+.true {
+  background-color: #e63c3a;
+}
+
+.true .dot {
+  margin: 0.15rem;
+  margin-left: auto;
+}
+
+.false {
+  background-color: #91908d;
 }
 
 /* --- Back Button CSS --- */

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import "../../styles/Transaction.css";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
@@ -11,6 +11,8 @@ import {
   faRotate,
   faClose,
   faArrowLeftLong,
+  faBurger,
+  faSquareMinus,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Transaction(props) {
@@ -30,13 +32,6 @@ export default function Transaction(props) {
   // Importing updateTransaction function
   const { updateTransaction } = useUpdateTransaction();
 
-  // Calling update transaction hook which creates new transaction and deletes old one
-  // Needs to take two arguments? Old transaction and new one
-  // Needs to take value and id from old transaction
-  // const handleClick = () => {
-  //   updateTransaction();
-  // };
-
   // Store form fields in an array
   const formFields = [
     "value",
@@ -54,54 +49,111 @@ export default function Transaction(props) {
 
   const { fetchFunc } = props;
 
+  // Importing updateData function
+  const { updateFunc } = props;
+  const { showForm } = props;
+
+  const combinedFunc = (transaction) => {
+    updateFunc(transaction);
+    showForm("transactionUpdateForm");
+  };
+
+  // Code to show option buttons or not
+  const [isButtonVisible, setButtonVisibility] = useState(true);
+  const [isHovered, setHovered] = useState(false);
+
+  const toggleButton = () => {
+    setButtonVisibility(!isButtonVisible);
+  };
+
+  // Code to track button clicks
+
+  const divRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (divRef.current && !divRef.current.contains(event.target)) {
+        setHovered(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="transaction__collection">
+    <div
+      className={`transaction__collection ${isHovered ? "hovered" : ""}`}
+      // onMouseEnter={() => setHovered(true)}
+      // onMouseLeave={() => setHovered(false)}
+      onClick={() => setHovered(true)}
+      ref={divRef}
+    >
       {!updateForm ? (
         /* Show normal transaction details if not udpating */
-        <div className="transaction__inner">
+        <div
+          className={`transaction__inner ${isHovered ? "button-visible" : ""}`}
+        >
           <div className="transaction__data">
             <div className="date_recipient">
-              <p>{formattedDate}</p>
-              <p>{transaction.recipient}</p>
+              <FontAwesomeIcon
+                className="transaction_category_icon"
+                icon={faBurger}
+              />
+              <div className="dr_content">
+                {/* <p className="date">{formattedDate}</p> */}
+                <p className="secondary_color">{transaction.recipient}</p>
+              </div>
             </div>
             {/* <p>{transaction.description}</p> */}
             {transaction.transaction_type == "income" ? (
-              <p className="income">{`+${transaction.value}`}</p>
+              <p className="income">{`+ £${transaction.value}`}</p>
             ) : (
-              <p className="expense">{`-${transaction.value}`}</p>
+              <p className="expense">{`- £${transaction.value}`}</p>
             )}
-            <p>{transaction.category}</p>
+            {/* <p>{transaction.category}</p> */}
           </div>
-          <div className="transaction__buttons">
-            <button className="update_btn" onClick={() => setUpdateForm(true)}>
-              <FontAwesomeIcon className="update_btn_icon" icon={faRotate} />
-            </button>
-            <button className="delete_btn" onClick={() => deleteFunc(id)}>
-              <FontAwesomeIcon
-                className="delete_btn_icon"
-                icon={faDeleteLeft}
-              />
-            </button>
-          </div>
+          {isButtonVisible && (
+            <div className="transaction__buttons">
+              <button
+                className="update_btn"
+                onClick={() => combinedFunc(transaction)}
+              >
+                <FontAwesomeIcon className="update_btn_icon" icon={faRotate} />
+              </button>
+              <button className="delete_btn" onClick={() => deleteFunc(id)}>
+                <FontAwesomeIcon
+                  className="delete_btn_icon"
+                  icon={faSquareMinus}
+                />
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="transaction__inner">
-          <div className="transaction__data">
+          <div className="update__data">
+            <div className="close_button_container">
+              <button
+                className="close_button"
+                onClick={() => setUpdateForm(false)}
+              >
+                <FontAwesomeIcon
+                  className="close_button_icon"
+                  icon={faArrowLeftLong}
+                />
+              </button>
+            </div>
             <UpdateTransactionForm
               fields={formFields}
               form="createTransaction"
               pay={pay}
               updateData={transaction}
               fetchFunc={fetchFunc}
+              showForm={props.showForm}
             />
-          </div>
-          <div className="close_button_container">
-            <button
-              className="close_button"
-              onClick={() => setUpdateForm(false)}
-            >
-              <FontAwesomeIcon className="close_button_icon" icon={faClose} />
-            </button>
           </div>
         </div>
       )}

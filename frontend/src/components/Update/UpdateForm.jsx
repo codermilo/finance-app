@@ -14,6 +14,7 @@ const UpdateTransactionForm = ({
   pay,
   updateData,
   fetchFunc,
+  transactionChange,
 }) => {
   // Import useUpdateTransaction hook
 
@@ -87,10 +88,10 @@ const UpdateTransactionForm = ({
   // Handle changes in checkbox input fields
   const handleChangeCheckbox = (e, fieldName) => {
     const isChecked = e.target.checked;
-    setFormData({
-      ...formData,
-      [fieldName]: isChecked, // Update the state with a boolean value
-    });
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [fieldName]: !prevFormData[fieldName],
+    }));
   };
 
   // Handle form submission
@@ -99,8 +100,8 @@ const UpdateTransactionForm = ({
 
     const formattedFormData = { ...formData };
 
-    console.log(formData.date);
-    console.log(formattedFormData.date);
+    // console.log(formData.date);
+    // console.log(formattedFormData.date);
 
     // Convert date strings to Date objects
     Object.keys(formattedFormData).forEach((field) => {
@@ -133,6 +134,7 @@ const UpdateTransactionForm = ({
         // Call updateTransaction function from hook
         updateTransaction(formattedFormData, pay, oldTransactionId); // Pass the entire formData object
         setTimeout(fetchFunc(), 500);
+        transactionChange("transactions");
         break;
       default:
         console.log("error, form submit not working");
@@ -140,30 +142,18 @@ const UpdateTransactionForm = ({
     }
   };
 
-  // Function to determine if a field should be shown based on 'recurring' value
-  const shouldShowField = (fieldName) => {
-    if (fieldName === "recurring") {
-      return true; // Always show 'recurring' field
-    }
-    return (
-      formData.recurring ||
-      ![
-        "recurring_period",
-        // "first_payment_date",
-        "final_payment_date",
-        "previous_payment_date",
-      ].includes(fieldName)
-    );
-  };
+  // Logic to hide recipient and category if pay == income
+  const isIncome = pay === "income";
 
   return (
     <div className="form-container">
       <form onSubmit={submitTransCreation}>
         {/* Map over form fields */}
-        {fields.map(
-          (field) =>
-            shouldShowField(field) && (
-              <div key={field} className="form-group">
+        {fields.map((field, index) => (
+          <div key={index} className="form-group">
+            {(field === "recipient" || field === "category") &&
+            isIncome ? null : (
+              <>
                 <label className="label">{field}</label>
                 <FormField
                   field={field}
@@ -172,10 +162,12 @@ const UpdateTransactionForm = ({
                   handleDateChange={handleDateChange}
                   handleChangeCheckbox={handleChangeCheckbox}
                   data={data}
+                  key={index}
                 />
-              </div>
-            )
-        )}
+              </>
+            )}
+          </div>
+        ))}
 
         {/* Submit button */}
         <button type="submit" className="button">
