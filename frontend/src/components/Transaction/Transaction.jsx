@@ -13,6 +13,13 @@ import {
   faArrowLeftLong,
   faBurger,
   faSquareMinus,
+  faHouseChimneyUser,
+  faLightbulb,
+  faUtensils,
+  faLandmark,
+  faGem,
+  faCircleQuestion,
+  faMoneyBill,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Transaction(props) {
@@ -83,6 +90,41 @@ export default function Transaction(props) {
     };
   }, []);
 
+  // Code to decide icon
+  const cat = transaction.category;
+  console.log(cat);
+  let iconImg;
+
+  switch (cat) {
+    case "Income":
+      iconImg = faMoneyBill;
+      break;
+    case "Food":
+      iconImg = faUtensils;
+      break;
+    case "Fast Food":
+      iconImg = faBurger;
+      break;
+    case "Mortgage":
+      iconImg = faHouseChimneyUser;
+      break;
+    case "Tax":
+      iconImg = faLandmark;
+      break;
+    case "Luxury":
+      iconImg = faGem;
+      break;
+    case "Other":
+      iconImg = faCircleQuestion;
+      break;
+    case "Utilities":
+      iconImg = faLightbulb;
+      break;
+    default:
+      iconImg = faCircleQuestion;
+      break;
+  }
+
   return (
     <div
       className={`transaction__collection ${isHovered ? "hovered" : ""}`}
@@ -100,7 +142,7 @@ export default function Transaction(props) {
             <div className="date_recipient">
               <FontAwesomeIcon
                 className="transaction_category_icon"
-                icon={faBurger}
+                icon={iconImg}
               />
               <div className="dr_content">
                 {/* <p className="date">{formattedDate}</p> */}

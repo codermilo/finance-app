@@ -7,6 +7,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleMinus, faUserGear } from "@fortawesome/free-solid-svg-icons";
 import Analytics from "./Analytics";
+import BudgetBarChart from "../Charts/BudgetBarChart";
 
 export default function CreateAccount({ fetchFunc, data }) {
   // Settings for Axios and Auth
@@ -70,6 +71,12 @@ export default function CreateAccount({ fetchFunc, data }) {
                 <h1 className="balance ">Income</h1>
                 <span>{`+ £${data?.income_total}`}</span>
               </div>
+
+              <BudgetBarChart
+                totalIncome={data?.income_total}
+                totalExpense={data?.expense_total}
+                remainingBalance={hasAccount.current_balance}
+              />
               <div className="total_out">
                 <h1 className="balance ">Outgoing</h1>
                 <span>{`- £${data?.expense_total}`}</span>

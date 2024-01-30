@@ -51,22 +51,37 @@
 
 .ca_analytics {
   display: flex;
+  flex-direction: column;
   width: 100%;
-  justify-content: space-between;
-  gap: 10px;
+  /* justify-content: space-between; */
+  /* gap: 10px; */
   margin-bottom: 0.5rem;
+  border-top: 1px solid #12121213;
+  border-bottom: 1px solid #12121213;
+}
+
+.balance_chart {
+  display: flex;
+  align-items: center;
+  height: 8px;
 }
 
 .total_in,
 .total_out {
-  width: 50%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  background-color: #91908d;
-  border-radius: 11px;
-  padding: 12px 12px;
-  gap: 10px;
+  /* background-color: #91908d; */
+  /* border-radius: 11px;
+  padding: 12px 12px; */
+  box-sizing: border-box;
+  padding: 5px 0 0 0;
+}
+
+.total_out {
+  text-align: right;
+  padding: 0 0 5px 0;
 }
 
 .total_in h1,

@@ -60,6 +60,16 @@
   transition: margin 0.5s ease-in-out;
 }
 
+.month_container {
+  border-top: 1px solid #12121213;
+  box-sizing: border-box;
+}
+
+.date {
+  border-bottom: 1px solid #12121213;
+  margin-bottom: 5px !important;
+}
+
 .transaction__data {
   display: flex;
   justify-content: space-between;
@@ -79,10 +89,12 @@
 .transaction_category_icon {
   background-color: #121212;
   color: white;
-  font-size: 1.25rem;
+  /* font-size: 1rem; */
+  width: 1rem;
+  height: 1rem;
   padding: 0.5rem;
   margin-right: 8px;
-  border-radius: 8px;
+  border-radius: 50%;
 }
 
 .dr_content {

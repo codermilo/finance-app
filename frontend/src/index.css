@@ -45,10 +45,10 @@ body {
 } */
 
 /* --- mobile styles --- */
-@media (max-width: 1080px) {
+/* @media (max-width: 1080px) {
   #root {
     width: 100%;
     display: flex;
     justify-content: center;
   }
-}
+} */
